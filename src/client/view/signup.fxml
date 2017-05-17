@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.text.*?>
+<?import javafx.geometry.*?>
+<?import java.lang.*?>
+<?import java.util.*?>
+<?import javafx.scene.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<AnchorPane prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="client.controller.SignupController">
+   <children>
+      <VBox alignment="CENTER" layoutX="250.0" layoutY="100.0" prefHeight="400.0" prefWidth="600.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+         <children>
+            <Label text="Text Twist !">
+               <font>
+                  <Font name="System Bold" size="70.0" />
+               </font>
+               <VBox.margin>
+                  <Insets top="30.0" />
+               </VBox.margin>
+            </Label>
+            <Label fx:id="infoLabel" text="Choose your credentials">
+               <font>
+                  <Font size="20.0" />
+               </font>
+               <VBox.margin>
+                  <Insets top="15.0" />
+               </VBox.margin>
+            </Label>
+            <HBox alignment="CENTER" prefWidth="200.0">
+               <children>
+                  <Label text="      Pick an username">
+                     <HBox.margin>
+                        <Insets right="41.0" />
+                     </HBox.margin>
+                  </Label>
+                  <TextField fx:id="usernameField" />
+               </children>
+               <VBox.margin>
+                  <Insets top="25.0" />
+               </VBox.margin>
+            </HBox>
+            <HBox alignment="CENTER" prefWidth="200.0">
+               <children>
+                  <Label text="Choose a strong password">
+                     <HBox.margin>
+                        <Insets right="10.0" />
+                     </HBox.margin>
+                  </Label>
+                  <PasswordField fx:id="passwordField" />
+               </children>
+               <VBox.margin>
+                  <Insets top="10.0" />
+               </VBox.margin>
+            </HBox>
+            <HBox alignment="CENTER" layoutX="10.0" layoutY="229.0" prefWidth="200.0">
+               <children>
+                  <Label text="    Repeat the password">
+                     <HBox.margin>
+                        <Insets right="30.0" />
+                     </HBox.margin>
+                  </Label>
+                  <PasswordField fx:id="repeatedField" />
+               </children>
+               <VBox.margin>
+                  <Insets top="10.0" />
+               </VBox.margin>
+            </HBox>
+            <Button mnemonicParsing="false" onAction="#handleSignupButton" prefHeight="30.0" prefWidth="85.0" text="Sign Up">
+               <VBox.margin>
+                  <Insets top="25.0" />
+               </VBox.margin>
+            </Button>
+            <Button layoutX="282.0" layoutY="332.0" mnemonicParsing="false" onAction="#handleCancelButton" prefHeight="30.0" prefWidth="85.0" text="Back">
+               <VBox.margin>
+                  <Insets top="10.0" />
+               </VBox.margin>
+            </Button>
+         </children>
+      </VBox>
+   </children>
+</AnchorPane>
