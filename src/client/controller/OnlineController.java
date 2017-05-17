@@ -6,6 +6,7 @@ import javafx.fxml.FXML;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import javafx.scene.control.SelectionMode;
+import javafx.scene.paint.Color;
 
 import java.util.ArrayList;
 
@@ -32,8 +33,8 @@ public class OnlineController {
     this.username = username;
     usersList.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
     ArrayList<String> stringList = mainApp.getOnlineUsers();
-    stringList.removeIf((String u) -> u.equals(username));
-    ObservableList<String> list = FXCollections.observableArrayList(mainApp.getOnlineUsers());
+    stringList.removeIf((u) -> u.equals(username));
+    ObservableList<String> list = FXCollections.observableArrayList(stringList);
     if (!list.isEmpty()) usersList.setItems(list);
   }
 
@@ -50,7 +51,14 @@ public class OnlineController {
    */
   @FXML
   void handleMatchButton() {
-    System.out.println("[DEBUG] Match button pressed");
+    ObservableList<String> selected = usersList.getSelectionModel().getSelectedItems();
+    if (selected.isEmpty()) {
+      infoLabel.setTextFill(Color.RED);
+      infoLabel.setText(":( Ow! It seems that your selection is empty, choose at least one friend!");
+    } else {
+      System.out.println("[DEBUG] Selected items:");
+      selected.forEach(System.out::println);
+    }
   }
 
   /**

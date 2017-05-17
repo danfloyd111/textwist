@@ -33,3 +33,35 @@
 .text-field {
     -fx-font-family: 'Ubuntu';
 }
+
+.list-cell {
+    -fx-alignment: center;
+}
+
+.list-view .scroll-pane {
+    -fx-background-color: transparent;
+}
+
+.list-view .scroll-bar .increment-button {
+    visibility: hidden;
+}
+
+.list-view .scroll-bar .decrement-button {
+    visibility: hidden;
+}
+
+.list-view .scroll-bar:vertical {
+    -fx-background-color: transparent;
+}
+
+.list-view .scroll-bar:vertical .track-background {
+    visibility: hidden;
+}
+
+.list-view .scroll-bar:vertical .track {
+    visibility: hidden;
+}
+
+.list-view .hide-thumb .scroll-bar:vertical .thumb {
+    -fx-background-color: transparent;
+}

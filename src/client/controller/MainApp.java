@@ -33,6 +33,7 @@ public class MainApp extends Application {
   private LoginServiceInterface loginService;
   private InvitationNotifierInterface notifierService;
   private InvitationNotifierInterface stub;
+  private String currentUser;
 
   private final int REGISTRY_PORT = 8888;
   private final int HEIGHT = 600, WIDTH = 750;
@@ -49,6 +50,13 @@ public class MainApp extends Application {
     initRootView();
     showIndexView();
     initRemoteServices();
+  }
+
+  @Override
+  public void stop() {
+    // TODO: do here all of your cleanings
+    logout(currentUser);
+    System.exit(0);
   }
 
   /**
@@ -119,6 +127,7 @@ public class MainApp extends Application {
    */
   boolean login(String username, String password) {
     boolean status = false;
+    currentUser = username;
     try {
       notifierService = new InvitationNotifier();
       stub = (InvitationNotifierInterface) UnicastRemoteObject.exportObject(notifierService, 0);
@@ -136,7 +145,7 @@ public class MainApp extends Application {
    */
   void logout(String username) {
     try {
-      loginService.logout(stub, username);
+      loginService.logout(username);
     } catch (RemoteException e) {
       System.err.println(e.getMessage());
       System.err.println("[WARNING] Remote exception in login.");

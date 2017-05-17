@@ -27,11 +27,10 @@ public interface LoginServiceInterface extends Remote {
 
   /**
    * Called from the client when he wants to logout and deregister his invitation callback.
-   * @param client is the object that exports the callback method.
    * @param username is the username of the client.
    * @throws RemoteException (see java.rmi.RemoteException)
    */
-  void logout(InvitationNotifierInterface client, String username) throws RemoteException;
+  void logout(String username) throws RemoteException;
 
   /**
    * Called from the client when he wants to sign up.

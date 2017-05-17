@@ -37,7 +37,7 @@ public class LoginService implements LoginServiceInterface {
   }
 
   @Override
-  public void logout(InvitationNotifierInterface notifier, String username) throws RemoteException {
+  public void logout(String username) throws RemoteException {
     usersMonitor.logout(username);
     System.out.println("[LOG] User: " + username + " has logged out.");
   }
