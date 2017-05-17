@@ -25,13 +25,13 @@ public class UserController {
     infoLabel.setTextFill(Color.GREEN);
     infoLabel.setText("Hello " + username + ", welcome back!");
   }
-
+  
   /**
    * Handles the Online Users button, when pressed shows the Online Users view.
    */
   @FXML
   private void handleOnlineButton() {
-    System.out.println("[LOG] Online button pressed.");
+    mainApp.showOnlineView(username);
   }
 
   /**
@@ -39,16 +39,7 @@ public class UserController {
    */
   @FXML
   private void handleInvitationsButton() {
-    System.out.println("[LOG] Invitations button pressed.");
-  }
-
-  /**
-   * Handles the New Match button, when pressed shows the New Match view.
-   */
-  @FXML
-  private void handleMatchButton() {
-    System.out.println("[LOG] Match button pressed.");
-    // TODO: maybe this feature can be implemented inside Online View
+    System.out.println("[DEBUG] Invitations button pressed.");
   }
 
   /**
@@ -56,7 +47,7 @@ public class UserController {
    */
   @FXML
   private void handleRankingButton() {
-    System.out.println("[LOG] Ranking button pressed.");
+    System.out.println("[DEBUG] Ranking button pressed.");
   }
 
   /**

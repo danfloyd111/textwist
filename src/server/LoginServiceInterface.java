@@ -4,6 +4,7 @@ import client.controller.InvitationNotifierInterface;
 
 import java.rmi.Remote;
 import java.rmi.RemoteException;
+import java.util.ArrayList;
 
 /**
  * @author Daniele Paolini
@@ -40,5 +41,12 @@ public interface LoginServiceInterface extends Remote {
    * @throws RemoteException (see java.rmi.RemoteException)
    */
   boolean signup(String username, String password) throws RemoteException;
+
+  /**
+   * Called from the client when he wants to get the list of online users.
+   * @return The list of online users represented with their username.
+   * @throws RemoteException (see java.rmi.RemoteException)
+   */
+  ArrayList<String> getOnlineUsers() throws RemoteException;
 
 }

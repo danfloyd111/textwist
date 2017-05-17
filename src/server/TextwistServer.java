@@ -109,7 +109,9 @@ public class TextwistServer {
         String password = results.getString("password");
         int matches = results.getInt("matches");
         int points = results.getInt("points");
-        usersMonitor.addUser(new User(username, password, matches, points));
+        User u = new User(username, password, matches, points);
+        u.setOffline();
+        usersMonitor.addUser(u);
       }
       System.out.println("[LOG] Users table loaded.");
     } catch (SQLException e) {

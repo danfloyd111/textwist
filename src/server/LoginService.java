@@ -5,6 +5,7 @@ import model.User;
 
 import java.rmi.RemoteException;
 import java.sql.*;
+import java.util.ArrayList;
 
 /**
  * @author Daniele Paolini
@@ -25,9 +26,8 @@ public class LoginService implements LoginServiceInterface {
   }
 
   @Override
-  public boolean login(InvitationNotifierInterface client, String username, String password) throws RemoteException {
-    boolean status = usersMonitor.login(username, password);
-    // TODO: add client to the online list
+  public boolean login(InvitationNotifierInterface notifier, String username, String password) throws RemoteException {
+    boolean status = usersMonitor.login(username, password, notifier);
     if (status) {
       System.out.println("[LOG] User: " + username + " has logged in.");
       return true;
@@ -37,8 +37,8 @@ public class LoginService implements LoginServiceInterface {
   }
 
   @Override
-  public void logout(InvitationNotifierInterface client, String username) throws RemoteException {
-    // TODO: remove client from the online list
+  public void logout(InvitationNotifierInterface notifier, String username) throws RemoteException {
+    usersMonitor.logout(username);
     System.out.println("[LOG] User: " + username + " has logged out.");
   }
 
@@ -59,6 +59,11 @@ public class LoginService implements LoginServiceInterface {
       System.out.println("[LOG] User: " + username + " has signed up.");
       return true;
     }
+  }
+
+  @Override
+  public ArrayList<String> getOnlineUsers() {
+    return usersMonitor.getOnlineUsers();
   }
 
 }

@@ -1,5 +1,6 @@
 package server;
 
+import client.controller.InvitationNotifierInterface;
 import model.User;
 
 import java.util.ArrayList;
@@ -48,16 +49,38 @@ class UsersMonitor {
    * @param password is the password of the user
    * @return True if the credentials are valid, False otherwise
    */
-  synchronized boolean login(String username, String password) {
+  synchronized boolean login(String username, String password, InvitationNotifierInterface notifier) {
     boolean status = false;
     for (User user : users) {
       if (user.getUsername().equals(username))
-        if(user.getPassword().equals(password)) {
+        if(user.getPassword().equals(password) && !user.isOnline()) {
           status = true;
-          user.setOnline();
+          user.setOnline(notifier);
         }
     }
     return status;
+  }
+
+  /**
+   * Sets offline the user with the given username.
+   * @param username is the username of the user.
+   */
+  synchronized void logout(String username) {
+    for (User user : users)
+      if (user.getUsername().equals(username))
+        user.setOffline();
+  }
+
+  /**
+   * Returns to the caller a list of online users represented with their username.
+   * @return a list of online users represented with their username.
+   */
+  synchronized ArrayList<String> getOnlineUsers() {
+    ArrayList<String> onlineList = new ArrayList<String>();
+    for (User user : users)
+      if (user.isOnline())
+        onlineList.add(user.getUsername());
+    return onlineList;
   }
 
 }

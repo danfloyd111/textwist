@@ -1,5 +1,7 @@
 package model;
 
+import client.controller.InvitationNotifierInterface;
+
 /**
  * @author Daniele Paolini
  * Text Twist project
@@ -12,6 +14,7 @@ public class User {
   private String username, password;
   private int matches, points;
   private boolean online;
+  private InvitationNotifierInterface notifier;
 
   /**
    * Standard constructor.
@@ -24,6 +27,7 @@ public class User {
     matches = 0;
     points = 0;
     online = false;
+    notifier = null;
   }
 
   /**
@@ -39,6 +43,7 @@ public class User {
     this.matches = matches;
     this.points = points;
     online = false;
+    notifier = null;
   }
 
   public String getUsername() {
@@ -65,12 +70,14 @@ public class User {
     this.points = points;
   }
 
-  public void setOnline() {
+  public void setOnline(InvitationNotifierInterface notifier) {
     this.online = true;
+    this.notifier = notifier;
   }
 
   public void setOffline() {
     this.online = false;
+    this.notifier = null;
   }
 
   public boolean isOnline() {

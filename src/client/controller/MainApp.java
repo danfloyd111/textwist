@@ -14,6 +14,7 @@ import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
+import java.util.ArrayList;
 
 /**
  * @author Daniele Paolini
@@ -145,6 +146,21 @@ public class MainApp extends Application {
   }
 
   /**
+   * Get the list of online users from the remote service.
+   * @return A list of the users that are online represented with their username.
+   */
+  ArrayList<String> getOnlineUsers() {
+    ArrayList<String> list = null;
+    try {
+      list = loginService.getOnlineUsers();
+    } catch (RemoteException e) {
+      System.err.println(e.getMessage());
+      System.err.println("[WARNING] Remote exception in getOnlineUsers.");
+    }
+    return list;
+  }
+
+  /**
    * Shows the Index view.
    */
   void showIndexView() {
@@ -222,6 +238,23 @@ public class MainApp extends Application {
     } catch (IOException e) {
       System.err.println(e.getMessage());
       System.err.println("[DEBUG] Error in showUserView.");
+      System.exit(1);
+    }
+  }
+
+  void showOnlineView(String username) {
+    try {
+      FXMLLoader loader = new FXMLLoader();
+      loader.setLocation(MainApp.class.getResource("/client/view/online.fxml"));
+      AnchorPane onlineView = loader.load();
+      String wallPath = MainApp.class.getResource("/res/crop1.jpg").toExternalForm();
+      onlineView.setStyle("-fx-background-image: url('" + wallPath + "'); -fx-background-position: center center; -fx-background-repeat: stretch");
+      rootView.setCenter(onlineView);
+      OnlineController controller = loader.getController();
+      controller.setMainApp(this, username);
+    } catch (IOException e) {
+      System.err.println(e.getMessage());
+      System.err.println("[DEBUG] Error in showOnlineView.");
       System.exit(1);
     }
   }

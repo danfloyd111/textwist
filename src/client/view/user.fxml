@@ -28,18 +28,13 @@
             </HBox>
             <HBox alignment="CENTER" layoutX="10.0" layoutY="230.0" spacing="40.0">
                <children>
-                  <Button fx:id="matchButton" mnemonicParsing="false" onAction="#handleMatchButton" prefWidth="150.0" text="New match" />
+                  <Button fx:id="logoutButton" mnemonicParsing="false" onAction="#handleLogoutButton" prefWidth="150.0" text="Logout" />
                   <Button fx:id="rankingButton" mnemonicParsing="false" onAction="#handleRankingButton" prefWidth="150.0" text="Ranking" />
                </children>
                <VBox.margin>
                   <Insets top="20.0" />
                </VBox.margin>
             </HBox>
-            <Button fx:id="logoutButton" mnemonicParsing="false" onAction="#handleLogoutButton" prefWidth="100.0" text="Logout">
-               <VBox.margin>
-                  <Insets top="20.0" />
-               </VBox.margin>
-            </Button>
          </children>
       </VBox>
    </children>
