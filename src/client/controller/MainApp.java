@@ -125,8 +125,8 @@ public class MainApp extends Application {
    * @param password is the password of the user.
    * @return True if the procedure succeeds, False if not (username or password are wrong).
    */
-  boolean login(String username, String password) {
-    boolean status = false;
+  int login(String username, String password) {
+    int status = 3;
     currentUser = username;
     try {
       notifierService = new InvitationNotifier();

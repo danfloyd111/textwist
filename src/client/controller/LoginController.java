@@ -40,12 +40,30 @@ public class LoginController {
       infoLabel.setTextFill(Color.RED);
       infoLabel.setText("Username and Password fields can't be empty!");
     } else {
-      boolean status = mainApp.login(usernameField.getText(), passwordField.getText());
-      if (status) {
-        mainApp.showUserView(usernameField.getText());
-      } else {
-        infoLabel.setTextFill(Color.RED);
-        infoLabel.setText(":( Ow! Username or password are incorrect!");
+      int status = mainApp.login(usernameField.getText(), passwordField.getText());
+      switch (status) {
+        case 0: {
+          // Servers say: ok
+          mainApp.showUserView(usernameField.getText());
+          break;
+        }
+        case 1: {
+          // Server says: incorrect credentials
+          infoLabel.setTextFill(Color.RED);
+          infoLabel.setText(":( Ow! Username or password are incorrect!");
+          break;
+        }
+        case 2: {
+          // Server says: already log in
+          infoLabel.setTextFill(Color.RED);
+          infoLabel.setText(":( Ow! You are already logged in!");
+          break;
+        }
+        default:{
+          // Something in the server is broken
+          infoLabel.setTextFill(Color.RED);
+          infoLabel.setText(":( Ow! Unknown server problem!");
+        }
       }
     }
   }

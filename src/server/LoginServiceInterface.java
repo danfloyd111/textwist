@@ -20,10 +20,10 @@ public interface LoginServiceInterface extends Remote {
    * @param client is the object that exports the callback method.
    * @param username is the username of the client.
    * @param password is the password of the client.
-   * @return True if the operation succeeds, False if not (username or password are not correct).
+   * @return 0 if the operation succeeds, 1 if username or password are not correct, 2 if the user is already logged in).
    * @throws RemoteException (see java.rmi.RemoteException)
    */
-  boolean login(InvitationNotifierInterface client, String username, String password) throws RemoteException;
+  int login(InvitationNotifierInterface client, String username, String password) throws RemoteException;
 
   /**
    * Called from the client when he wants to logout and deregister his invitation callback.

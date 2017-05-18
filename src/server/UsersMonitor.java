@@ -47,16 +47,19 @@ class UsersMonitor {
    * Tries to set online an user
    * @param username is the username of the user
    * @param password is the password of the user
-   * @return True if the credentials are valid, False otherwise
+   * @return 0 if the credentials are valid, 1 otherwise, 2 if the user is online.
    */
-  synchronized boolean login(String username, String password, InvitationNotifierInterface notifier) {
-    boolean status = false;
+  synchronized int login(String username, String password, InvitationNotifierInterface notifier) {
+    int status = 1;
     for (User user : users) {
       if (user.getUsername().equals(username))
-        if(user.getPassword().equals(password) && !user.isOnline()) {
-          status = true;
-          user.setOnline(notifier);
-        }
+        if (user.getPassword().equals(password))
+          if (user.isOnline()) {
+            status = 2;
+          } else {
+            status = 0;
+            user.setOnline(notifier);
+          }
     }
     return status;
   }

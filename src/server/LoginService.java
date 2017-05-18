@@ -26,14 +26,15 @@ public class LoginService implements LoginServiceInterface {
   }
 
   @Override
-  public boolean login(InvitationNotifierInterface notifier, String username, String password) throws RemoteException {
-    boolean status = usersMonitor.login(username, password, notifier);
-    if (status) {
-      System.out.println("[LOG] User: " + username + " has logged in.");
-      return true;
+  public int login(InvitationNotifierInterface notifier, String username, String password) throws RemoteException {
+    int status = usersMonitor.login(username, password, notifier);
+    switch (status) {
+      case 0: System.out.println("[LOG] User: " + username + " has logged in."); break;
+      case 1: System.out.println("[LOG] User: " + username + " tried to login with invalid credentials."); break;
+      case 2: System.out.println("[LOG] User: " + username + " tried to login multiple times."); break;
+      default: System.out.println("[WARNING] User monitor is broken.");
     }
-    System.out.println("[LOG] User: " + username + " tried to login with invalid credentials.");
-    return false;
+    return status;
   }
 
   @Override
