@@ -1,6 +1,7 @@
 package client.controller;
 
 import javafx.application.Application;
+import javafx.collections.ObservableList;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.layout.AnchorPane;
@@ -8,7 +9,10 @@ import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
 import server.LoginServiceInterface;
 
-import java.io.IOException;
+import java.io.*;
+import java.net.Socket;
+import java.net.SocketException;
+import java.net.UnknownHostException;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
@@ -38,6 +42,8 @@ public class MainApp extends Application {
   private final int REGISTRY_PORT = 8888;
   private final int HEIGHT = 600, WIDTH = 750;
   private final String SERVER_NAME = "TEXTWISTSERVER";
+  private final int MATCH_PORT = 8686;
+  private final String SERVER_ADDRESS = "localhost";
 
   public static void main(String args[]) {
     launch(args);
@@ -170,6 +176,59 @@ public class MainApp extends Application {
   }
 
   /**
+   * Starts the procedure for a new match
+   * @param username is the username of the owner of the match.
+   * @param users is the list of users invited by the owner to join the match.
+   */
+  void startMatch(String username, ObservableList<String> users) {
+    StringBuilder message = new StringBuilder(username);
+    for (String user : users) message.append(":").append(user);
+    System.out.println(String.valueOf(message));
+    Socket socket = null;
+    try {
+      socket = new Socket(SERVER_ADDRESS, MATCH_PORT);
+      socket.setSoTimeout(5000);
+      BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+      BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
+      System.out.println("[DEBUG] Sending list " + String.valueOf(message));
+      writer.write(String.valueOf(message));
+      writer.newLine();
+      writer.flush();
+      System.out.println("[DEBUG] List sent.");
+      String response = reader.readLine();
+      System.out.println("[DEBUG] Response received.");
+      String[] tokens = response.split(":");
+      String status = tokens[0];
+      if (status.equals("OK")) {
+        showAfterstartView(username,true,"Are you ready? Go back, and check your invitation list!");
+      } else {
+        String errorMessage = tokens[1];
+        System.out.println("[ERROR] " + errorMessage);
+        showAfterstartView(username,false, errorMessage); // TODO: change with "Some users gone offline, try with another ones" in production.
+      }
+    } catch (SocketException e) {
+      System.err.println(e.getMessage());
+      System.err.println("[ERROR] Socket timeout - startMatch");
+      showAfterstartView(username,false,"The server is down!");
+    } catch (UnknownHostException e) {
+      System.err.println(e.getMessage());
+      System.err.println("[ERROR] Unknown host - startMatch");
+      showAfterstartView(username,false,"Check your configuration!");
+    } catch (IOException e) {
+      System.err.println(e.getMessage());
+      System.err.println("[ERROR] I/O error - startMatch");
+      showAfterstartView(username,false,"Internal I/O error!");
+    } finally {
+      if (socket != null) try {
+        socket.close();
+      } catch (IOException e) {
+        System.err.println(e.getMessage());
+        System.err.println("[ERROR] Can't close the socket - startMatch");
+      }
+    }
+  }
+
+  /**
    * Shows the Index view.
    */
   void showIndexView() {
@@ -251,6 +310,10 @@ public class MainApp extends Application {
     }
   }
 
+  /**
+   * Shows the Online view.
+   * @param username is the username of the user to show.
+   */
   void showOnlineView(String username) {
     try {
       FXMLLoader loader = new FXMLLoader();
@@ -264,6 +327,29 @@ public class MainApp extends Application {
     } catch (IOException e) {
       System.err.println(e.getMessage());
       System.err.println("[DEBUG] Error in showOnlineView.");
+      System.exit(1);
+    }
+  }
+
+  /**
+   * Shows the "After start" view.
+   * @param username is the username of the user that tries to start the match.
+   * @param status is the response status got from the server.
+   * @param info is the response string that explicate the status.
+   */
+  private void showAfterstartView(String username, boolean status, String info) {
+    try {
+      FXMLLoader loader = new FXMLLoader();
+      loader.setLocation(MainApp.class.getResource("/client/view/afterstart.fxml"));
+      AnchorPane afterstartView = loader.load();
+      String wallPath = MainApp.class.getResource("/res/crop1.jpg").toExternalForm();
+      rootView.setCenter(afterstartView);
+      afterstartView.setStyle("-fx-background-image: url('" + wallPath + "'); -fx-background-position: center center; -fx-background-repeat: stretch");
+      AfterstartController controller = loader.getController();
+      controller.setMainApp(this, username, status, info);
+    } catch (IOException e) {
+      System.err.println(e.getMessage());
+      System.err.println("[DEBUG] Error in showAfterstartView.");
       System.exit(1);
     }
   }

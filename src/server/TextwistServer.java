@@ -26,10 +26,13 @@ public class TextwistServer {
   private static final int REGISTRY_PORT = 8888;
   private static final int SERVICE_PORT = 9999;
   private static final String SERVER_NAME = "TEXTWISTSERVER";
+  private static final int MATCH_PORT = 8686;
 
   private static Connection database;
 
   private static UsersMonitor usersMonitor;
+
+  private static MatchMaster matchMaster;
 
   public static void main(String args[]) {
 
@@ -44,6 +47,7 @@ public class TextwistServer {
       @Override
       public void run() {
         keepRunning = false;
+        matchMaster.shutdown();
         try {
           mainThread.join();
         } catch (InterruptedException e) {
@@ -65,6 +69,14 @@ public class TextwistServer {
     System.out.println("[LOG] Initializing RMI services...");
     initRMI();
     System.out.println("[LOG] RMI services are up and running.");
+
+    // Initializing MatchMaster thread
+
+    System.out.println("[LOG] Initializing MatchMaster...");
+    matchMaster = new MatchMaster(MATCH_PORT);
+    Thread matchMasterThread = new Thread(matchMaster);
+    matchMasterThread.start();
+    System.out.println("[LOG] MatchMaster is up and running.");
 
     // Server's life cycle
 

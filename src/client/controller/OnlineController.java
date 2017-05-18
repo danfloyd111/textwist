@@ -56,8 +56,7 @@ public class OnlineController {
       infoLabel.setTextFill(Color.RED);
       infoLabel.setText(":( Ow! It seems that your selection is empty, choose at least one friend!");
     } else {
-      System.out.println("[DEBUG] Selected items:");
-      selected.forEach(System.out::println);
+      mainApp.startMatch(username, selected);
     }
   }
 
