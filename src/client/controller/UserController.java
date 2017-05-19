@@ -39,7 +39,7 @@ public class UserController {
    */
   @FXML
   private void handleInvitationsButton() {
-    System.out.println("[DEBUG] Invitations button pressed.");
+    mainApp.showInvitationsView(username);
   }
 
   /**

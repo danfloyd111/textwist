@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.text.*?>
+<?import javafx.geometry.*?>
+<?import java.lang.*?>
+<?import java.util.*?>
+<?import javafx.scene.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+
+<AnchorPane prefHeight="517.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="client.controller.InvitationsController">
+   <children>
+      <VBox alignment="CENTER" layoutX="250.0" layoutY="100.0" prefHeight="400.0" prefWidth="600.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+         <children>
+            <Label text="Invitations list">
+               <VBox.margin>
+                  <Insets top="10.0" />
+               </VBox.margin>
+               <font>
+                  <Font name="System Bold" size="30.0" />
+               </font>
+            </Label>
+            <Label fx:id="infoLabel" text="Choose an invitation to start a new match!">
+               <font>
+                  <Font size="18.0" />
+               </font>
+               <VBox.margin>
+                  <Insets top="20.0" />
+               </VBox.margin>
+            </Label>
+            <ListView maxWidth="200.0" prefHeight="220.0" prefWidth="90.0">
+               <VBox.margin>
+                  <Insets top="15.0" />
+               </VBox.margin>
+            </ListView>
+            <HBox alignment="CENTER" prefWidth="200.0" spacing="25.0">
+               <children>
+                  <Button fx:id="acceptButton" mnemonicParsing="false" onAction="#handleAcceptButton" prefWidth="120.0" text="Accept" />
+                  <Button fx:id="declineButton" mnemonicParsing="false" onAction="#handleDeclineButton" prefWidth="120.0" text="Decline" />
+               </children>
+               <padding>
+                  <Insets top="25.0" />
+               </padding>
+            </HBox>
+            <Button fx:id="backButton" maxWidth="120.0" mnemonicParsing="false" onAction="#handleBackButton" text="Back">
+               <VBox.margin>
+                  <Insets top="15.0" />
+               </VBox.margin>
+            </Button>
+         </children>
+      </VBox>
+   </children>
+   <padding>
+      <Insets top="100.0" />
+   </padding>
+</AnchorPane>

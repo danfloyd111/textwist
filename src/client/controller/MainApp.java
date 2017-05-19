@@ -354,4 +354,25 @@ public class MainApp extends Application {
     }
   }
 
+  /**
+   * Shows the Invitations view.
+   * @param username is the username of the user that wants to view his invitations.
+   */
+  void showInvitationsView(String username) {
+    try {
+      FXMLLoader loader = new FXMLLoader();
+      loader.setLocation(MainApp.class.getResource("/client/view/invitations.fxml"));
+      AnchorPane invitationsView = loader.load();
+      String wallPath = MainApp.class.getResource("/res/crop1.jpg").toExternalForm();
+      invitationsView.setStyle("-fx-background-image: url('" + wallPath + "'); -fx-background-position: center center; -fx-background-repeat: stretch");
+      rootView.setCenter(invitationsView);
+      InvitationsController controller = loader.getController();
+      controller.setMainApp(this, username);
+    } catch (IOException e) {
+      System.err.println(e.getMessage());
+      System.err.println("[DEBUG] Error in showInvitationsView.");
+      System.exit(1);
+    }
+  }
+
 }
