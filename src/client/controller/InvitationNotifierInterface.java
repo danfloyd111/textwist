@@ -20,4 +20,11 @@ public interface InvitationNotifierInterface extends Remote {
    */
   void notifyInvitation(String ownerName, String matchId) throws RemoteException;
 
+  /**
+   * This method will be called periodically by the server to see if client crashed
+   * @return a test string.
+   * @throws RemoteException (See java.rmi.RemoteException)
+   */
+  String heartbeat() throws RemoteException;
+
 }

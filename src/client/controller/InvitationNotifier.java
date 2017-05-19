@@ -16,5 +16,10 @@ public class InvitationNotifier implements InvitationNotifierInterface {
     System.out.println("[DEBUG] Got an invite for match " + matchId + " from " + ownerName);
   }
 
+  @Override
+  public String heartbeat() throws RemoteException {
+    return "I'm alive!";
+  }
+
 }
 

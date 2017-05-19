@@ -83,4 +83,8 @@ public class User {
   public boolean isOnline() {
     return online;
   }
+
+  public InvitationNotifierInterface getNotifier() {
+    return notifier;
+  }
 }

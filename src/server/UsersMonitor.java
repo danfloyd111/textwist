@@ -1,5 +1,6 @@
 package server;
 
+import client.controller.InvitationNotifier;
 import client.controller.InvitationNotifierInterface;
 import model.User;
 
@@ -79,11 +80,34 @@ class UsersMonitor {
    * @return a list of online users represented with their username.
    */
   synchronized ArrayList<String> getOnlineUsers() {
-    ArrayList<String> onlineList = new ArrayList<String>();
+    ArrayList<String> onlineList = new ArrayList<>();
     for (User user : users)
       if (user.isOnline())
         onlineList.add(user.getUsername());
     return onlineList;
+  }
+
+  /**
+   * Returns to the caller a list that contains all the stubs of online users.
+   * @return a list that contains all the stubs of online users.
+   */
+  synchronized ArrayList<InvitationNotifierInterface> getOnlineStubs() {
+    ArrayList<InvitationNotifierInterface> stubList = new ArrayList<>();
+    for (User user : users)
+      if (user.isOnline())
+        stubList.add(user.getNotifier());
+    return stubList;
+  }
+
+  /**
+   * Puts offline the user with the given stub.
+   * @param stub is the InvitationNotifierInterface of the user.
+   */
+  synchronized void putOffline(InvitationNotifierInterface stub) {
+    for (User user : users) {
+      if (user.getNotifier().equals(stub))
+        user.setOffline();
+    }
   }
 
 }

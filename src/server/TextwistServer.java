@@ -34,6 +34,8 @@ public class TextwistServer {
 
   private static MatchMaster matchMaster;
 
+  private static HeartbeatMonitor heartbeatMonitor;
+
   public static void main(String args[]) {
 
     // Monitors initializations
@@ -48,6 +50,7 @@ public class TextwistServer {
       public void run() {
         keepRunning = false;
         matchMaster.shutdown();
+        heartbeatMonitor.shutdown();
         try {
           mainThread.join();
         } catch (InterruptedException e) {
@@ -77,6 +80,14 @@ public class TextwistServer {
     Thread matchMasterThread = new Thread(matchMaster);
     matchMasterThread.start();
     System.out.println("[LOG] MatchMaster is up and running.");
+
+    // Initializing HeartbeatMonitor thread
+
+    System.out.println("[LOG] Initializing HeartbeatMonitor...");
+    heartbeatMonitor = new HeartbeatMonitor(usersMonitor);
+    Thread heartbeatMonitorThread = new Thread(heartbeatMonitor);
+    heartbeatMonitorThread.start();
+    System.out.println("[LOG] HeartbeatMonitor is up and running.");
 
     // Server's life cycle
 
