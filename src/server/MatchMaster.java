@@ -3,6 +3,9 @@ package server;
 import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @author Daniele Paolini
@@ -15,9 +18,13 @@ public class MatchMaster implements Runnable {
 
   private ServerSocket socket;
   private volatile boolean keepRunning;
+  private ExecutorService workersPool;
+  private UsersMonitor usersMonitor;
 
-  MatchMaster(int port) {
+  MatchMaster(int port, UsersMonitor usersMonitor) {
     keepRunning = true;
+    workersPool = Executors.newCachedThreadPool();
+    this.usersMonitor = usersMonitor;
     try {
       socket = new ServerSocket(port);
     } catch (IOException e) {
@@ -32,13 +39,7 @@ public class MatchMaster implements Runnable {
     while (keepRunning) {
       try {
         userSocket = socket.accept();
-        BufferedReader reader = new BufferedReader(new InputStreamReader(userSocket.getInputStream()));
-        BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(userSocket.getOutputStream()));
-        String line = reader.readLine();
-        System.out.println("[LOG] MatchMaster got a request, MESSAGE: " + line);
-        writer.write("NO:service unavailable," + line);
-        writer.newLine();
-        writer.flush();
+        workersPool.submit(new MatchWorker(userSocket, usersMonitor));
       } catch (IOException e) {
         System.err.println("[WARNING] MatchMaster caught an I/O exception.");
       }
@@ -49,10 +50,15 @@ public class MatchMaster implements Runnable {
   void shutdown() {
     try {
       socket.close();
+      workersPool.shutdown();
+      workersPool.awaitTermination(Long.MAX_VALUE, TimeUnit.NANOSECONDS);
       System.out.println("[LOG] MatchMaster going down...");
     } catch (IOException e) {
       System.err.println(e.getMessage());
       System.err.println("[ERROR] Match master can't close the socket.");
+    } catch (InterruptedException e) {
+      System.err.println(e.getMessage());
+      System.err.println("[ERROR] Match master can't await the termination of the workersPool.");
     }
     keepRunning = false;
   }

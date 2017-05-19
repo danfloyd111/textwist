@@ -1,6 +1,5 @@
 package server;
 
-import client.controller.InvitationNotifier;
 import client.controller.InvitationNotifierInterface;
 
 import java.rmi.RemoteException;

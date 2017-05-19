@@ -4,6 +4,7 @@ import client.controller.InvitationNotifier;
 import client.controller.InvitationNotifierInterface;
 import model.User;
 
+import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -108,6 +109,39 @@ class UsersMonitor {
       if (user.getNotifier().equals(stub))
         user.setOffline();
     }
+  }
+
+  /**
+   * Check if the user with the given username is online and notify an invitation for a match.
+   * @param username is the username of the user.
+   * @return True if the user is online, False otherwise.
+   */
+  synchronized boolean notifyUser(String username, String owner, String matchId) {
+    boolean status = false;
+    try {
+      for (User user : users)
+        if (user.getUsername().equals(username))
+          if (user.isOnline()) {
+            user.getNotifier().notifyInvitation(owner, matchId);
+            status = true;
+          }
+    } catch (RemoteException e) {
+      // it means that a client is crashed
+    }
+    return status;
+  }
+
+  /**
+   * Check if an users is online.
+   * @param username is the username of the user.
+   * @return True if the user is online, false otherwise.
+   */
+  synchronized boolean isOnline(String username) {
+    boolean status = false;
+    for (User user : users)
+      if (user.getUsername().equals(username))
+        status = user.isOnline();
+    return status;
   }
 
 }

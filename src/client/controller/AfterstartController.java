@@ -27,7 +27,7 @@ public class AfterstartController {
     this.username = username;
     if (status) {
       statusLabel.setTextFill(Color.GREEN);
-      infoLabel.setText("Prepare for the match!");
+      statusLabel.setText("Prepare for the match!");
       infoLabel.setText(info);
     } else {
       statusLabel.setTextFill(Color.RED);

@@ -204,7 +204,7 @@ public class MainApp extends Application {
       } else {
         String errorMessage = tokens[1];
         System.out.println("[ERROR] " + errorMessage);
-        showAfterstartView(username,false, errorMessage); // TODO: change with "Some users gone offline, try with another ones" in production.
+        showAfterstartView(username,false, errorMessage);
       }
     } catch (SocketException e) {
       System.err.println(e.getMessage());

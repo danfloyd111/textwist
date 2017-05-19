@@ -76,7 +76,7 @@ public class TextwistServer {
     // Initializing MatchMaster thread
 
     System.out.println("[LOG] Initializing MatchMaster...");
-    matchMaster = new MatchMaster(MATCH_PORT);
+    matchMaster = new MatchMaster(MATCH_PORT, usersMonitor);
     Thread matchMasterThread = new Thread(matchMaster);
     matchMasterThread.start();
     System.out.println("[LOG] MatchMaster is up and running.");
