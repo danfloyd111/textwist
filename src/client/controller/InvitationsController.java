@@ -1,7 +1,16 @@
 package client.controller;
 
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
+import javafx.scene.control.ListView;
+import javafx.scene.control.SelectionMode;
+import javafx.scene.paint.Color;
+import model.Invitation;
+
+import java.util.Iterator;
+import java.util.List;
 
 /**
  * @author Daniele Paolini
@@ -18,9 +27,15 @@ public class InvitationsController {
   @FXML
   private Label infoLabel;
 
+  @FXML
+  private ListView<Invitation> invitationsList;
+
   void setMainApp(MainApp mainApp, String username) {
     this.mainApp = mainApp;
     this.username = username;
+    invitationsList.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
+    ObservableList<Invitation> invitations = FXCollections.observableArrayList(mainApp.getInvitations());
+    invitationsList.setItems(invitations);
   }
 
   /**
@@ -28,7 +43,18 @@ public class InvitationsController {
    */
   @FXML
   void handleAcceptButton() {
-    System.out.println("[DEBUG] Accept button pressed.");
+    ObservableList<Invitation> selected = invitationsList.getSelectionModel().getSelectedItems();
+    if (selected.isEmpty()) {
+      infoLabel.setTextFill(Color.RED);
+      infoLabel.setText(":( Ow! It seems that your selection is empty, choose an invitation!");
+    } else {
+      // TODO: accept the match invitation and remove it from "invitations" and go to waiting room
+      List<Invitation> invitations = mainApp.getInvitations();
+      for (Invitation inv : invitations) {
+        String matchId = inv.getMatchId(); // TODO: decline this match invitation
+      }
+      invitations.clear();
+    }
   }
 
   /**
@@ -36,7 +62,16 @@ public class InvitationsController {
    */
   @FXML
   void handleDeclineButton() {
-    System.out.println("[DEBUG] Decline button pressed.");
+    ObservableList<Invitation> selected = invitationsList.getSelectionModel().getSelectedItems();
+    if (selected.isEmpty()) {
+      infoLabel.setTextFill(Color.RED);
+      infoLabel.setText(":( Ow! It seems that your selection is empty, choose an invitation!");
+    } else {
+      // TODO: decline this match invitation
+      Invitation inv = selected.get(0); // the selection mode is SINGLE
+      mainApp.getInvitations().remove(inv);
+      mainApp.showInvitationsView(username); // refresh the view
+    }
   }
 
   /**

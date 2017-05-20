@@ -1,6 +1,10 @@
 package client.controller;
 
+import model.Invitation;
+
 import java.rmi.RemoteException;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author Daniele Paolini
@@ -11,9 +15,16 @@ import java.rmi.RemoteException;
 
 public class InvitationNotifier implements InvitationNotifierInterface {
 
+  private List<Invitation> invitationsList;
+
+  InvitationNotifier(List<Invitation> invitationsList) {
+    this.invitationsList = invitationsList;
+  }
+
   @Override
   public void notifyInvitation(String ownerName, String matchId) throws RemoteException {
     System.out.println("[DEBUG] Got an invite for match " + matchId + " from " + ownerName);
+    invitationsList.add(new Invitation(ownerName, matchId));
   }
 
   @Override

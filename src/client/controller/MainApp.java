@@ -8,6 +8,7 @@ import javafx.scene.image.Image;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
+import model.Invitation;
 import server.LoginServiceInterface;
 
 import java.io.*;
@@ -20,6 +21,8 @@ import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * @author Daniele Paolini
@@ -39,6 +42,7 @@ public class MainApp extends Application {
   private InvitationNotifierInterface notifierService;
   private InvitationNotifierInterface stub;
   private String currentUser;
+  private List<Invitation> invitationsList;
 
   private final int REGISTRY_PORT = 8888;
   private final int HEIGHT = 600, WIDTH = 750;
@@ -52,6 +56,7 @@ public class MainApp extends Application {
 
   @Override
   public void start(Stage primaryStage) throws Exception {
+    invitationsList = Collections.synchronizedList(new ArrayList<Invitation>());
     this.primaryStage = primaryStage;
     primaryStage.setTitle("Text Twist !");
     primaryStage.getIcons().add(new Image("file:resources/icon.png"));
@@ -137,7 +142,7 @@ public class MainApp extends Application {
     int status = 3;
     currentUser = username;
     try {
-      notifierService = new InvitationNotifier();
+      notifierService = new InvitationNotifier(invitationsList);
       stub = (InvitationNotifierInterface) UnicastRemoteObject.exportObject(notifierService, 0);
       status = loginService.login(stub, username, password);
     } catch (RemoteException e) {
@@ -228,6 +233,14 @@ public class MainApp extends Application {
         System.err.println("[ERROR] Can't close the socket - startMatch");
       }
     }
+  }
+
+  /**
+   * Returns the list of invitations.
+   * @return the list of invitations.
+   */
+  List<Invitation> getInvitations() {
+    return invitationsList;
   }
 
   /**
