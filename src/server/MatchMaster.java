@@ -20,11 +20,13 @@ public class MatchMaster implements Runnable {
   private volatile boolean keepRunning;
   private ExecutorService workersPool;
   private UsersMonitor usersMonitor;
+  private MatchesMonitor matchesMonitor;
 
-  MatchMaster(int port, UsersMonitor usersMonitor) {
+  MatchMaster(int port, UsersMonitor usersMonitor, MatchesMonitor matchesMonitor) {
     keepRunning = true;
     workersPool = Executors.newCachedThreadPool();
     this.usersMonitor = usersMonitor;
+    this.matchesMonitor = matchesMonitor;
     try {
       socket = new ServerSocket(port);
     } catch (IOException e) {
@@ -39,7 +41,7 @@ public class MatchMaster implements Runnable {
     while (keepRunning) {
       try {
         userSocket = socket.accept();
-        workersPool.submit(new MatchWorker(userSocket, usersMonitor));
+        workersPool.submit(new MatchWorker(userSocket, usersMonitor, matchesMonitor));
       } catch (IOException e) {
         System.err.println("[WARNING] MatchMaster caught an I/O exception.");
       }

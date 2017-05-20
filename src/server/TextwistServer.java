@@ -31,6 +31,7 @@ public class TextwistServer {
   private static Connection database;
 
   private static UsersMonitor usersMonitor;
+  private static MatchesMonitor matchesMonitor;
 
   private static MatchMaster matchMaster;
 
@@ -38,9 +39,14 @@ public class TextwistServer {
 
   public static void main(String args[]) {
 
+    System.out.println("[LOG] Textwist server going up!");
+
     // Monitors initializations
 
+    System.out.println("[LOG] Initializing monitors...");
     usersMonitor = new UsersMonitor();
+    matchesMonitor = new MatchesMonitor();
+    System.out.println("[LOG] Monitors initialized.");
 
     // Shutdown hook installation
 
@@ -60,8 +66,6 @@ public class TextwistServer {
       }
     });
 
-    System.out.println("[LOG] Textwist server going up!");
-
     // Database initialization
 
     initDatabase();
@@ -76,7 +80,7 @@ public class TextwistServer {
     // Initializing MatchMaster thread
 
     System.out.println("[LOG] Initializing MatchMaster...");
-    matchMaster = new MatchMaster(MATCH_PORT, usersMonitor);
+    matchMaster = new MatchMaster(MATCH_PORT, usersMonitor, matchesMonitor);
     Thread matchMasterThread = new Thread(matchMaster);
     matchMasterThread.start();
     System.out.println("[LOG] MatchMaster is up and running.");

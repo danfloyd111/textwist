@@ -8,6 +8,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Random;
+import java.util.UUID;
 import java.util.stream.Stream;
 
 /**
@@ -20,15 +21,18 @@ import java.util.stream.Stream;
 public class MatchWorker implements Runnable {
 
   private Socket userSocket;
-  private UsersMonitor monitor;
+  private UsersMonitor usersMonitor;
+  private MatchesMonitor matchesMonitor;
 
-  MatchWorker(Socket userSocket, UsersMonitor monitor) {
+  MatchWorker(Socket userSocket, UsersMonitor usersMonitor, MatchesMonitor matchesMonitor) {
     this.userSocket = userSocket;
-    this.monitor = monitor;
+    this.usersMonitor = usersMonitor;
+    this.matchesMonitor = matchesMonitor;
   }
 
   @Override
   public void run() {
+    UUID matchUID = null;
     try {
       // this is a single run thread, no need of a keepAlive procedure.
       BufferedReader reader = new BufferedReader(new InputStreamReader(userSocket.getInputStream()));
@@ -38,18 +42,22 @@ public class MatchWorker implements Runnable {
       String owner = tokens[0];
       String players[] = new String[tokens.length - 1];
       System.arraycopy(tokens, 1, players, 0, tokens.length - 1);
-      String word = pickRandomWord();
+      String word = "";
+      while (word.length() < 7) word = pickRandomWord(); // choosing a word that's long enough
+      word = shuffle(word); // shuffling the letters
       // match creation
-      Match match = new Match(owner, players, word); // TODO: add the match to MatchMonitor and start the timeoutThread
+      Match match = new Match(owner, players, word); // TODO: start the timeoutThread
+      matchUID = match.getId();
+      matchesMonitor.addMatch(match);
       System.out.println("[DEBUG] Random word: " + word);
-      // match notification
+      // match notificationcd
       boolean keepGoing = true;
       int i=1;
       while (keepGoing && i<tokens.length) {
-        keepGoing = monitor.notifyUser(tokens[i], owner, "MATCH_ID");
+        keepGoing = usersMonitor.notifyUser(tokens[i], owner, "MATCH_ID");
         i++;
       }
-      boolean ownerNotification = monitor.notifyUser(tokens[0], owner, "MATCH_ID");
+      boolean ownerNotification = usersMonitor.notifyUser(tokens[0], owner, "MATCH_ID");
       if (!keepGoing || !ownerNotification) // some users crashed
         writer.write("NO:Unfortunately some users crashed during the notification procedure.");
       else // all gone fine
@@ -59,14 +67,14 @@ public class MatchWorker implements Runnable {
     } catch (IOException e) {
       System.err.println(e.getMessage());
       System.err.println("[ERROR] MatchWorker has lost the connection with the match owner!");
-      // TODO: invalidate the match!!!!
+      if (matchUID != null) matchesMonitor.deleteMatch(matchUID); // removing the match
     } finally {
       try {
         userSocket.close();
       } catch (IOException e) {
         System.err.println(e.getMessage());
         System.err.println("[ERROR] MatchWorker got internal problems!");
-        // TODO: invalidate the match!!!!
+        if (matchUID != null) matchesMonitor.deleteMatch(matchUID); // removing the match
       }
     }
   }
@@ -75,13 +83,32 @@ public class MatchWorker implements Runnable {
    * This function choose a random word from the vocabulary
    * @return a random word.
    */
+  @SuppressWarnings("Convert2MethodRef")
   private String pickRandomWord() throws IOException {
-    ArrayList<String> words = new ArrayList<String>();
+    ArrayList<String> words = new ArrayList<>();
     try (Stream<String> stream = Files.lines(Paths.get("resources/dictionary.txt"))) {
       stream.forEach(s -> words.add(s));
     }
     Random generator = new Random(System.currentTimeMillis());
     return words.get(generator.nextInt(words.size()));
+  }
+
+  /**
+   * Generates a random permutation of the given string
+   * @param string is the string to be permuted
+   * @return the permutated string
+   */
+  private String shuffle(String string) {
+    char[] s = string.toCharArray();
+    char[] permutation = new char[s.length];
+    Random generator = new Random(System.currentTimeMillis());
+    for (int i=0; i<s.length; i++) {
+      int index = generator.nextInt(s.length);
+      while (s[index] == '.') index = generator.nextInt(s.length);
+      permutation[i] = s[index];
+      s[index] = '.';
+    }
+    return new String(permutation);
   }
 
 }

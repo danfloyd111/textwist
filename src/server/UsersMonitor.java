@@ -13,7 +13,7 @@ import java.util.List;
  * @author Daniele Paolini
  * Text Twist project
  * Date 17/05/17.
- * This is the monitors that ensures the synchronization and thread safety on the shared User list.
+ * This is the monitor that ensures the synchronization and thread safety on the shared User list.
  */
 
 class UsersMonitor {

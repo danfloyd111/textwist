@@ -1,5 +1,7 @@
 package model;
 
+import java.util.UUID;
+
 /**
  * @author Daniele Paolini
  * Text Twist project
@@ -12,11 +14,13 @@ public class Match {
   private String owner;
   private String[] players;
   private String word;
+  private UUID id;
 
   public Match(String owner, String[] players, String word) {
     this.owner = owner;
     this.players = players;
     this.word = word;
+    id = UUID.randomUUID();
   }
 
   public String getOwner() {
@@ -41,5 +45,9 @@ public class Match {
 
   public void setWord(String word) {
     this.word = word;
+  }
+
+  public UUID getId() {
+    return id;
   }
 }
