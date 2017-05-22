@@ -4,6 +4,7 @@ import javafx.application.Application;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
+import javafx.scene.control.Alert;
 import javafx.scene.image.Image;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
@@ -43,6 +44,7 @@ public class MainApp extends Application {
   private InvitationNotifierInterface stub;
   private String currentUser;
   private List<Invitation> invitationsList;
+  private Socket currentSocket;
 
   private final int REGISTRY_PORT = 8888;
   private final int HEIGHT = 600, WIDTH = 750;
@@ -70,6 +72,15 @@ public class MainApp extends Application {
     // TODO: do here all of your cleanings
     logout(currentUser);
     System.exit(0);
+    if (currentSocket != null) {
+      try {
+        currentSocket.close();
+      } catch (IOException e) {
+        System.err.println(e.getMessage());
+        System.err.println("[DEBUG] Error in stop - Can't close the socket.");
+        System.exit(1);
+      }
+    }
   }
 
   /**
@@ -188,8 +199,8 @@ public class MainApp extends Application {
    * @param users is the list of users invited by the owner to join the match.
    */
   void startMatch(String username, ObservableList<String> users) {
-    username = ("1:" + username); // operation 1 means : start the match
-    StringBuilder message = new StringBuilder(username);
+    String op = ("1:" + username); // operation 1 means : start the match
+    StringBuilder message = new StringBuilder(op);
     for (String user : users) message.append(":").append(user);
     System.out.println(String.valueOf(message));
     Socket socket = null;
@@ -237,10 +248,13 @@ public class MainApp extends Application {
   }
 
   void acceptInvitation(String matchId) {
+    showWaitingView(currentUser); // we have to show a waiting view somehow
     String message = "2:" + matchId + ":OK";
     Socket socket = null;
     try {
       socket = new Socket(SERVER_ADDRESS, MATCH_PORT);
+      currentSocket = socket;
+      socket.setSoTimeout(10000); // TODO: set this to 7 minutes
       BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
       BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
       System.out.println("[DEBUG] Sending message: " + message);
@@ -252,7 +266,13 @@ public class MainApp extends Application {
     } catch (UnknownHostException e) {
       e.printStackTrace(); // TODO: qui gestione errori normale
     } catch (IOException e) {
-      System.out.println("[DEBUG] Qualcuno ha rifiutato la partita"); // TODO: qui probabilmente andra fatta vedere la view "un giocatore ha rifiutato la sfida"
+      System.out.println("[DEBUG] Someone refused the match or the waiting time is over."); // TODO: qui probabilmente andra fatta vedere la view "un giocatore ha rifiutato la sfida"
+      Alert alert = new Alert(Alert.AlertType.INFORMATION);
+      alert.setTitle("Information");
+      alert.setHeaderText("Sorry");
+      alert.setContentText("Someone refused the match or the waiting time is over!");
+      alert.showAndWait();
+      showUserView(currentUser);
     } finally {
       if (socket != null) try {
         socket.close();
@@ -413,6 +433,28 @@ public class MainApp extends Application {
     } catch (IOException e) {
       System.err.println(e.getMessage());
       System.err.println("[DEBUG] Error in showInvitationsView.");
+      System.exit(1);
+    }
+  }
+
+  /**
+   * Shows the Waiting view.
+   * @param info is the string to be shown in the view.
+   */
+  void showWaitingView(String info) {
+    try {
+      FXMLLoader loader = new FXMLLoader();
+      loader.setLocation(MainApp.class.getResource("/client/view/waiting.fxml"));
+      AnchorPane waitingView = loader.load();
+      String wallPath = MainApp.class.getResource("/res/crop1.jpg").toExternalForm();
+      waitingView.setStyle("-fx-background-image: url('" + wallPath + "'); -fx-background-position: center center; -fx-background-repeat: stretch");
+      rootView.setCenter(waitingView);
+      WaitingController controller = loader.getController();
+      controller.setMainApp(this);
+      controller.setInfo(info);
+    } catch (IOException e) {
+      System.err.println(e.getMessage());
+      System.err.println("[DEBUG] Error in showWaitingView.");
       System.exit(1);
     }
   }

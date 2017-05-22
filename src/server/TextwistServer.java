@@ -40,9 +40,7 @@ public class TextwistServer {
 
     // Monitors initializations
 
-    System.out.println("[LOG] Initializing monitors...");
     usersMonitor = new UsersMonitor();
-    System.out.println("[LOG] Monitors initialized.");
 
     // Shutdown hook installation
 
@@ -83,7 +81,11 @@ public class TextwistServer {
     System.out.println("[LOG] Initializing HeartbeatMonitor...");
     heartbeatMonitor = new HeartbeatMonitor(usersMonitor);
     Thread heartbeatMonitorThread = new Thread(heartbeatMonitor);
-    heartbeatMonitorThread.start();
+
+
+    System.out.println("[LOG] Initializing monitors...");
+    usersMonitor = new UsersMonitor();
+    System.out.println("[LOG] Monitors initialized.");heartbeatMonitorThread.start();
     System.out.println("[LOG] HeartbeatMonitor is up and running.");
 
     // Server's life cycle

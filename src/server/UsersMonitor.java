@@ -106,7 +106,7 @@ class UsersMonitor {
    */
   synchronized void putOffline(InvitationNotifierInterface stub) {
     for (User user : users) {
-      if (user.getNotifier().equals(stub))
+      if (user.isOnline() && user.getNotifier().equals(stub))
         user.setOffline();
     }
   }
