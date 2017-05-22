@@ -17,8 +17,6 @@ import java.util.Properties;
  * The server.
  */
 
-
-
 public class TextwistServer {
 
   private static volatile boolean keepRunning = true; // this is the volatile variable that keeps the server up.
@@ -31,7 +29,6 @@ public class TextwistServer {
   private static Connection database;
 
   private static UsersMonitor usersMonitor;
-  private static MatchesMonitor matchesMonitor;
 
   private static MatchMaster matchMaster;
 
@@ -45,26 +42,22 @@ public class TextwistServer {
 
     System.out.println("[LOG] Initializing monitors...");
     usersMonitor = new UsersMonitor();
-    matchesMonitor = new MatchesMonitor();
     System.out.println("[LOG] Monitors initialized.");
 
     // Shutdown hook installation
 
     final Thread mainThread = Thread.currentThread();
-    Runtime.getRuntime().addShutdownHook(new Thread() {
-      @Override
-      public void run() {
-        keepRunning = false;
-        matchMaster.shutdown();
-        heartbeatMonitor.shutdown();
-        try {
-          mainThread.join();
-        } catch (InterruptedException e) {
-          System.err.println("[WARNING] The shutdown hook can't join the main thread.");
-        }
-        System.out.println("[LOG] Shutdown hook triggered, the server is going down.");
+    Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+      keepRunning = false;
+      matchMaster.shutdown();
+      heartbeatMonitor.shutdown();
+      try {
+        mainThread.join();
+      } catch (InterruptedException e) {
+        System.err.println("[WARNING] The shutdown hook can't join the main thread.");
       }
-    });
+      System.out.println("[LOG] Shutdown hook triggered, the server is going down.");
+    }));
 
     // Database initialization
 
@@ -80,7 +73,7 @@ public class TextwistServer {
     // Initializing MatchMaster thread
 
     System.out.println("[LOG] Initializing MatchMaster...");
-    matchMaster = new MatchMaster(MATCH_PORT, usersMonitor, matchesMonitor);
+    matchMaster = new MatchMaster(MATCH_PORT, usersMonitor);
     Thread matchMasterThread = new Thread(matchMaster);
     matchMasterThread.start();
     System.out.println("[LOG] MatchMaster is up and running.");

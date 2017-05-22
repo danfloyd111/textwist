@@ -188,6 +188,7 @@ public class MainApp extends Application {
    * @param users is the list of users invited by the owner to join the match.
    */
   void startMatch(String username, ObservableList<String> users) {
+    username = ("1:" + username); // operation 1 means : start the match
     StringBuilder message = new StringBuilder(username);
     for (String user : users) message.append(":").append(user);
     System.out.println(String.valueOf(message));
@@ -231,6 +232,32 @@ public class MainApp extends Application {
       } catch (IOException e) {
         System.err.println(e.getMessage());
         System.err.println("[ERROR] Can't close the socket - startMatch");
+      }
+    }
+  }
+
+  void acceptInvitation(String matchId) {
+    String message = "2:" + matchId + ":OK";
+    Socket socket = null;
+    try {
+      socket = new Socket(SERVER_ADDRESS, MATCH_PORT);
+      BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+      BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
+      System.out.println("[DEBUG] Sending message: " + message);
+      writer.write(message);
+      writer.newLine();
+      writer.flush();
+      String response = reader.readLine();
+      System.out.println("[DEBUG] Received: " + response);
+    } catch (UnknownHostException e) {
+      e.printStackTrace(); // TODO: qui gestione errori normale
+    } catch (IOException e) {
+      System.out.println("[DEBUG] Qualcuno ha rifiutato la partita"); // TODO: qui probabilmente andra fatta vedere la view "un giocatore ha rifiutato la sfida"
+    } finally {
+      if (socket != null) try {
+        socket.close();
+      } catch (IOException e) {
+        e.printStackTrace(); // TODO: qui gestione errori normale
       }
     }
   }

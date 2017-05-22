@@ -1,12 +1,11 @@
 package server;
 
-import model.Match;
-
 import java.io.*;
 import java.net.Socket;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 import java.util.UUID;
 import java.util.stream.Stream;
@@ -15,66 +14,102 @@ import java.util.stream.Stream;
  * @author Daniele Paolini
  * Text Twist project
  * Date 19/05/17.
- * This task receive invitations requests from client and forwards the invitations to the recipients.
+ * This task do two different jobs
+ * 1) receives invitations requests from client and forwards the invitations to the recipients.
+ * 2) collects invitations responses and starts the match.
  */
 
 public class MatchWorker implements Runnable {
 
   private Socket userSocket;
   private UsersMonitor usersMonitor;
-  private MatchesMonitor matchesMonitor;
+  private final List<Match> matches;
 
-  MatchWorker(Socket userSocket, UsersMonitor usersMonitor, MatchesMonitor matchesMonitor) {
+  MatchWorker(Socket userSocket, UsersMonitor usersMonitor, List<Match> matches) {
     this.userSocket = userSocket;
     this.usersMonitor = usersMonitor;
-    this.matchesMonitor = matchesMonitor;
+    this.matches = matches;
   }
 
   @Override
   public void run() {
-    UUID matchUID = null;
+    int operation = 0;
     try {
       // this is a single run thread, no need of a keepAlive procedure.
       BufferedReader reader = new BufferedReader(new InputStreamReader(userSocket.getInputStream()));
       BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(userSocket.getOutputStream()));
       String line = reader.readLine();
       String tokens[] = line.split(":");
-      String owner = tokens[0];
-      String players[] = new String[tokens.length - 1];
-      System.arraycopy(tokens, 1, players, 0, tokens.length - 1);
-      String word = "";
-      while (word.length() < 7) word = pickRandomWord(); // choosing a word that's long enough
-      word = shuffle(word); // shuffling the letters
-      // match creation
-      Match match = new Match(owner, players, word); // TODO: start the timeoutThread
-      matchUID = match.getId();
-      matchesMonitor.addMatch(match);
-      System.out.println("[DEBUG] Random word: " + word);
-      // match notificationcd
-      boolean keepGoing = true;
-      int i=1;
-      while (keepGoing && i<tokens.length) {
-        keepGoing = usersMonitor.notifyUser(tokens[i], owner, "MATCH_ID");
-        i++;
+      operation = Integer.parseInt(tokens[0]);
+      if (operation == 1) {
+        System.out.println("[DEBUG] matchworker op 1");
+        // op 1: invitation
+        String owner = tokens[1];
+        String players[] = new String[tokens.length - 2];
+        System.arraycopy(tokens, 2, players, 0, tokens.length - 2);
+        String word = "";
+        while (word.length() < 7) word = pickRandomWord(); // choosing a word that's long enough
+        word = shuffle(word); // shuffling the letters
+        // match creation
+        Match match = new Match(word);
+        match.addPlayer(owner);
+        for (String player : players) match.addPlayer(player);
+        matches.add(match);
+        UUID id = match.getId();
+        Thread matchThread = new Thread(match);
+        matchThread.start();
+        // match notification
+        boolean keepGoing = true;
+        int i = 0;
+        while (keepGoing && i < players.length) {
+          keepGoing = usersMonitor.notifyUser(players[i], owner, id.toString());
+          i++;
+        }
+        boolean ownerNotification = usersMonitor.notifyUser(owner, owner, id.toString());
+        if (!keepGoing || !ownerNotification) {
+          // some user crashed during notification procedure
+          writer.write("NO:Unfortunately some users crashed during the notification procedure.");
+          // TODO : kill the match
+        } else // all gone fine
+          writer.write("OK");
+        writer.newLine();
+        writer.flush();
+      } else {
+        System.out.println("[DEBUG] matchWorker op 2: " + line);
+        // op 2: response to an invitation
+        UUID id = UUID.fromString(tokens[1]);
+        String answer = tokens[2];
+        synchronized (matches) {
+          for (Match match : matches) {
+            if (match.getId().equals(id)) {
+              System.out.println("[DEBUG] found match, answer: " + answer);
+              if (answer.equals("OK")) {
+                match.confirm(userSocket);
+                System.out.println("[DEBUG] answer was ok");
+              } else {
+                System.out.println("[DEBUG] answer was no");
+                match.interrupt();
+              }
+            }
+          }
+        }
+        // TODO: tell to the match that a user is talking
+        System.out.println("[DEBUG] An user accepted a match.");
       }
-      boolean ownerNotification = usersMonitor.notifyUser(tokens[0], owner, "MATCH_ID");
-      if (!keepGoing || !ownerNotification) // some users crashed
-        writer.write("NO:Unfortunately some users crashed during the notification procedure.");
-      else // all gone fine
-        writer.write("OK");
-      writer.newLine();
-      writer.flush();
+    } catch(NumberFormatException e) {
+      System.err.println(e.getMessage());
+      System.err.println("[ERROR] The user broke the protocol!");
     } catch (IOException e) {
       System.err.println(e.getMessage());
       System.err.println("[ERROR] MatchWorker has lost the connection with the match owner!");
-      if (matchUID != null) matchesMonitor.deleteMatch(matchUID); // removing the match
+      // TODO : kill the match
     } finally {
       try {
-        userSocket.close();
+        if (operation==1) userSocket.close();
       } catch (IOException e) {
         System.err.println(e.getMessage());
         System.err.println("[ERROR] MatchWorker got internal problems!");
-        if (matchUID != null) matchesMonitor.deleteMatch(matchUID); // removing the match
+        // TODO : kill the match
       }
     }
   }

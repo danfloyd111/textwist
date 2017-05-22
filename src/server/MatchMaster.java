@@ -3,6 +3,9 @@ package server;
 import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -20,13 +23,13 @@ public class MatchMaster implements Runnable {
   private volatile boolean keepRunning;
   private ExecutorService workersPool;
   private UsersMonitor usersMonitor;
-  private MatchesMonitor matchesMonitor;
+  private List<Match> matches;
 
-  MatchMaster(int port, UsersMonitor usersMonitor, MatchesMonitor matchesMonitor) {
+  MatchMaster(int port, UsersMonitor usersMonitor) {
     keepRunning = true;
     workersPool = Executors.newCachedThreadPool();
+    matches = Collections.synchronizedList(new ArrayList<Match>());
     this.usersMonitor = usersMonitor;
-    this.matchesMonitor = matchesMonitor;
     try {
       socket = new ServerSocket(port);
     } catch (IOException e) {
@@ -37,13 +40,14 @@ public class MatchMaster implements Runnable {
 
   @Override
   public void run() {
-    Socket userSocket = null;
+    Socket userSocket;
     while (keepRunning) {
       try {
         userSocket = socket.accept();
-        workersPool.submit(new MatchWorker(userSocket, usersMonitor, matchesMonitor));
+        workersPool.submit(new MatchWorker(userSocket, usersMonitor, matches));
       } catch (IOException e) {
         System.err.println("[WARNING] MatchMaster caught an I/O exception.");
+        // TODO : kill all the remaining matches
       }
     }
 

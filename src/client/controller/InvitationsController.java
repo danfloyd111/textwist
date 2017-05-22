@@ -48,12 +48,14 @@ public class InvitationsController {
       infoLabel.setTextFill(Color.RED);
       infoLabel.setText(":( Ow! It seems that your selection is empty, choose an invitation!");
     } else {
-      // TODO: accept the match invitation and remove it from "invitations" and go to waiting room
+      Invitation sel = selected.get(0); // the selection mode is SINGLE
       List<Invitation> invitations = mainApp.getInvitations();
+      invitations.remove(sel);
       for (Invitation inv : invitations) {
         String matchId = inv.getMatchId(); // TODO: decline this match invitation
       }
       invitations.clear();
+      mainApp.acceptInvitation(sel.getMatchId());
     }
   }
 
