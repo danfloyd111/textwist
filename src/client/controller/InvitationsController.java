@@ -1,14 +1,19 @@
 package client.controller;
 
+import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
-import javafx.scene.control.Label;
-import javafx.scene.control.ListView;
-import javafx.scene.control.SelectionMode;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.control.*;
+import javafx.scene.layout.AnchorPane;
 import javafx.scene.paint.Color;
 import model.Invitation;
 
+import java.io.*;
+import java.net.Socket;
+import java.net.SocketException;
+import java.net.UnknownHostException;
 import java.util.Iterator;
 import java.util.List;
 
@@ -30,6 +35,15 @@ public class InvitationsController {
   @FXML
   private ListView<Invitation> invitationsList;
 
+  @FXML
+  private Button backButton;
+
+  @FXML
+  private Button acceptButton;
+
+  @FXML
+  private Button declineButton;
+
   void setMainApp(MainApp mainApp, String username) {
     this.mainApp = mainApp;
     this.username = username;
@@ -39,7 +53,7 @@ public class InvitationsController {
   }
 
   /**
-   * Handles the Accept button, when pressed triggers the "accept invite button".
+   * Handles the Accept button, when pressed triggers the "accept invite procedure".
    */
   @FXML
   void handleAcceptButton() {
@@ -48,6 +62,38 @@ public class InvitationsController {
       infoLabel.setTextFill(Color.RED);
       infoLabel.setText(":( Ow! It seems that your selection is empty, choose an invitation!");
     } else {
+      mainApp.showWaitingView("Waiting the other players...");
+      Thread matchListener = new Thread(() -> {
+        String message = "2:" + selected.get(0).getMatchId() + ":OK";
+        Socket socket = null;
+        try {
+          socket = new Socket(mainApp.SERVER_ADDRESS, mainApp.MATCH_PORT);
+          BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+          BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
+          System.out.println("[DEBUG] Sending message: " + message);
+          writer.write(message);
+          writer.newLine();
+          writer.flush();
+          String response = reader.readLine();
+          Platform.runLater(() -> mainApp.showWaitingView(response));
+        } catch (UnknownHostException e) {
+          System.err.println("[ERROR] Unknown host - configuration error.");
+          System.exit(1);
+        } catch (SocketException e) {
+          System.out.println("[DEBUG] Someone refused or timeout");
+          Platform.runLater(() -> mainApp.showWaitingView("Someone refused the challenge, or the waiting time is over!"));
+        } catch (IOException e) {
+          System.err.println("[ERROR] I/O error.");
+          System.exit(1);
+        } finally {
+          if (socket != null) try {
+            socket.close();
+          } catch (IOException e) {
+            System.err.println("[ERROR] Cant' close the socket in handleAccept RunLater Thread");
+          }
+        }
+      });
+      matchListener.start();
       Invitation sel = selected.get(0); // the selection mode is SINGLE
       List<Invitation> invitations = mainApp.getInvitations();
       invitations.remove(sel);
@@ -55,7 +101,6 @@ public class InvitationsController {
         String matchId = inv.getMatchId(); // TODO: decline this match invitation
       }
       invitations.clear();
-      mainApp.acceptInvitation(sel.getMatchId());
     }
   }
 
@@ -69,7 +114,20 @@ public class InvitationsController {
       infoLabel.setTextFill(Color.RED);
       infoLabel.setText(":( Ow! It seems that your selection is empty, choose an invitation!");
     } else {
-      // TODO: decline this match invitation
+      Platform.runLater(() -> {
+        try {
+          Socket socket = new Socket(mainApp.SERVER_ADDRESS, mainApp.MATCH_PORT);
+          socket.setSoTimeout(1000);
+          BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
+          System.out.println("[DEBUG] Refusing match");
+          writer.write("2:" + selected.get(0).getMatchId() + ":NO");
+          writer.newLine();
+          writer.flush();
+          socket.close();
+        } catch (IOException e) {
+          System.err.println("[ERROR] Cant' close the socket in handleAccept RunLater Thread");
+        }
+      });
       Invitation inv = selected.get(0); // the selection mode is SINGLE
       mainApp.getInvitations().remove(inv);
       mainApp.showInvitationsView(username); // refresh the view

@@ -56,8 +56,7 @@ public class MatchWorker implements Runnable {
         for (String player : players) match.addPlayer(player);
         matches.add(match);
         UUID id = match.getId();
-        Thread matchThread = new Thread(match);
-        matchThread.start();
+        match.initialize();
         // match notification
         boolean keepGoing = true;
         int i = 0;
@@ -88,13 +87,12 @@ public class MatchWorker implements Runnable {
                 System.out.println("[DEBUG] answer was ok");
               } else {
                 System.out.println("[DEBUG] answer was no");
-                match.interrupt();
+                match.kill();
+                operation = 1; // little workaround to close this socket in case of refuse
               }
             }
           }
         }
-        // TODO: tell to the match that a user is talking
-        System.out.println("[DEBUG] An user accepted a match.");
       }
     } catch(NumberFormatException e) {
       System.err.println(e.getMessage());
@@ -105,7 +103,7 @@ public class MatchWorker implements Runnable {
       // TODO : kill the match
     } finally {
       try {
-        if (operation==1) userSocket.close();
+        if (operation == 1) userSocket.close(); // if operation is 2, the socket will be closed by the Match
       } catch (IOException e) {
         System.err.println(e.getMessage());
         System.err.println("[ERROR] MatchWorker got internal problems!");

@@ -44,13 +44,12 @@ public class MainApp extends Application {
   private InvitationNotifierInterface stub;
   private String currentUser;
   private List<Invitation> invitationsList;
-  private Socket currentSocket;
 
   private final int REGISTRY_PORT = 8888;
   private final int HEIGHT = 600, WIDTH = 750;
   private final String SERVER_NAME = "TEXTWISTSERVER";
-  private final int MATCH_PORT = 8686;
-  private final String SERVER_ADDRESS = "localhost";
+  public final int MATCH_PORT = 8686;
+  public final String SERVER_ADDRESS = "localhost";
 
   public static void main(String args[]) {
     launch(args);
@@ -72,15 +71,6 @@ public class MainApp extends Application {
     // TODO: do here all of your cleanings
     logout(currentUser);
     System.exit(0);
-    if (currentSocket != null) {
-      try {
-        currentSocket.close();
-      } catch (IOException e) {
-        System.err.println(e.getMessage());
-        System.err.println("[DEBUG] Error in stop - Can't close the socket.");
-        System.exit(1);
-      }
-    }
   }
 
   /**
@@ -206,7 +196,7 @@ public class MainApp extends Application {
     Socket socket = null;
     try {
       socket = new Socket(SERVER_ADDRESS, MATCH_PORT);
-      socket.setSoTimeout(5000);
+      socket.setSoTimeout(1500);
       BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
       BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
       System.out.println("[DEBUG] Sending list " + String.valueOf(message));
@@ -243,41 +233,6 @@ public class MainApp extends Application {
       } catch (IOException e) {
         System.err.println(e.getMessage());
         System.err.println("[ERROR] Can't close the socket - startMatch");
-      }
-    }
-  }
-
-  void acceptInvitation(String matchId) {
-    showWaitingView(currentUser); // we have to show a waiting view somehow
-    String message = "2:" + matchId + ":OK";
-    Socket socket = null;
-    try {
-      socket = new Socket(SERVER_ADDRESS, MATCH_PORT);
-      currentSocket = socket;
-      socket.setSoTimeout(10000); // TODO: set this to 7 minutes
-      BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-      BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
-      System.out.println("[DEBUG] Sending message: " + message);
-      writer.write(message);
-      writer.newLine();
-      writer.flush();
-      String response = reader.readLine();
-      System.out.println("[DEBUG] Received: " + response);
-    } catch (UnknownHostException e) {
-      e.printStackTrace(); // TODO: qui gestione errori normale
-    } catch (IOException e) {
-      System.out.println("[DEBUG] Someone refused the match or the waiting time is over."); // TODO: qui probabilmente andra fatta vedere la view "un giocatore ha rifiutato la sfida"
-      Alert alert = new Alert(Alert.AlertType.INFORMATION);
-      alert.setTitle("Information");
-      alert.setHeaderText("Sorry");
-      alert.setContentText("Someone refused the match or the waiting time is over!");
-      alert.showAndWait();
-      showUserView(currentUser);
-    } finally {
-      if (socket != null) try {
-        socket.close();
-      } catch (IOException e) {
-        e.printStackTrace(); // TODO: qui gestione errori normale
       }
     }
   }

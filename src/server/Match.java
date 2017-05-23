@@ -25,6 +25,7 @@ public class Match implements Runnable {
   private volatile boolean keepGoing;
   private final Object monitor;
   private ArrayList<Socket> sockets;
+  private Thread currentThread;
 
   Match(String word) {
     this.word = word;
@@ -36,46 +37,51 @@ public class Match implements Runnable {
     keepGoing = true;
   }
 
+  void initialize() {
+    currentThread = new Thread(this);
+    currentThread.start();
+  }
+
   @Override
   public void run() {
-    System.out.println("[DEBUG] in run");
-    while (keepGoing) {
-      System.out.println("[DEBUG] in while");
-      try {
-        System.out.println("[DEBUG] in try");
-        synchronized (monitor) {
-          System.out.println("[DEBUG] in sync");
-          while (playerCount < players.size()) {
-            System.out.println("[DEBUG] prepare to wait");
-            monitor.wait();
-          }
-          System.out.println("[DEBUG] OK! Match started.");
-          // PROVVISORIO
+    MatchTimeout matchTimeout = new MatchTimeout(this);
+    Thread timeout = new Thread(matchTimeout);
+    timeout.start();
+    synchronized (monitor) {
+      while (playerCount < players.size() && keepGoing)
+        try {
+          monitor.wait();
+        } catch (InterruptedException e) {
+          System.out.println("[DEBUG] Match invalidated.");
+          if (timeout.isAlive()) timeout.interrupt();
           sockets.forEach(socket -> {
             try {
-              BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
-              writer.write("[DEBUG] OK");
-              writer.newLine();
-              writer.flush();
-              socket.close();
-            } catch (IOException e) {
-              e.printStackTrace(); // exc handling
+              socket.close(); // TODO: send NO
+            } catch (IOException e1) {
+              System.err.println("[WARNING] Can't close a client's socket.");
             }
           });
           keepGoing = false;
+          Thread.currentThread().interrupt();
+          return;
         }
-      } catch (InterruptedException e) {
-        System.out.println("[DEBUG] OK ! Match invalidated."); // TODO : se qualcuno rifiuta il match interrupt me!!!
-        sockets.forEach(socket -> {
-          try {
-            socket.close(); // questo dovrebbe lanciare un ecc anche sul client
-          } catch (IOException e1) {
-            e1.printStackTrace(); // exc handling
-          }
-        });
-        // PROVVISORIO
-        keepGoing = false;
-      }
+    }
+    if (keepGoing) {
+      System.out.println("[DEBUG] OK! Match started.");
+      timeout.interrupt();
+      sockets.forEach(socket -> {
+        try {
+          BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
+          writer.write("OK:Queste sono le lettere");
+          writer.newLine();
+          writer.flush();
+          socket.close();
+        } catch (IOException e) {
+          System.err.println("[WARNING] A client crashed while receiving letters.");
+        }
+      });
+    } else {
+      if (timeout.isAlive()) timeout.interrupt();
     }
   }
 
@@ -91,8 +97,9 @@ public class Match implements Runnable {
     }
   }
 
-  synchronized void interrupt() {
-    Thread.currentThread().interrupt();
+  synchronized void kill() {
+    currentThread.interrupt();
+    System.out.println("[DEBUG] in interrupt of Match");
   }
 
   public UUID getId() {
