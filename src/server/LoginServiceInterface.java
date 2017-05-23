@@ -48,4 +48,11 @@ public interface LoginServiceInterface extends Remote {
    */
   ArrayList<String> getOnlineUsers() throws RemoteException;
 
+  /**
+   * This method will be periodically called by the client to see if the server is crashed.
+   * @return a test string.
+   * @throws RemoteException (see java.rmi.RemoteException)
+   */
+  String heartbeat() throws RemoteException;
+
 }

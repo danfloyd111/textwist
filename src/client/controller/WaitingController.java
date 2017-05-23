@@ -1,7 +1,9 @@
 package client.controller;
 
 import javafx.fxml.FXML;
+import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.paint.Color;
 
 /**
  * @author Daniele Paolini
@@ -13,16 +15,31 @@ import javafx.scene.control.Label;
 public class WaitingController {
 
   private MainApp mainApp;
+  private String username;
 
   @FXML
   Label infoLabel;
 
-  void setMainApp(MainApp mainApp) {
+  @FXML
+  Button backButton;
+
+  void setMainApp(MainApp mainApp, String username, boolean showButton) {
     this.mainApp = mainApp;
+    this.username = username;
+    backButton.setVisible(showButton);
   }
 
   void setInfo(String info) {
+    infoLabel.setTextFill(Color.RED);
     infoLabel.setText(info);
+  }
+
+  /**
+   * Handles the back button, when triggered shows the user view.
+   */
+  @FXML
+  void handleBackButton() {
+    mainApp.showUserView(username);
   }
 
 }

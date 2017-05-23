@@ -4,10 +4,7 @@ import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.net.Socket;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 /**
  * @author Daniele Paolini
@@ -26,8 +23,11 @@ public class Match implements Runnable {
   private final Object monitor;
   private ArrayList<Socket> sockets;
   private Thread currentThread;
+  public volatile boolean timeoutFlag;
+  private final List<Match> matches;
 
-  Match(String word) {
+
+  Match(String word, List<Match> matches) {
     this.word = word;
     players = new HashMap<>();
     playerCount = 0;
@@ -35,6 +35,8 @@ public class Match implements Runnable {
     id = UUID.randomUUID();
     sockets = new ArrayList<>();
     keepGoing = true;
+    timeoutFlag = false;
+    this.matches = matches;
   }
 
   void initialize() {
@@ -53,10 +55,18 @@ public class Match implements Runnable {
           monitor.wait();
         } catch (InterruptedException e) {
           System.out.println("[DEBUG] Match invalidated.");
+          matches.remove(this);
           if (timeout.isAlive()) timeout.interrupt();
           sockets.forEach(socket -> {
             try {
-              socket.close(); // TODO: send NO
+              BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
+              if (timeoutFlag)
+                writer.write("NO:timeout");
+              else
+                writer.write("NO:refused");
+              writer.newLine();
+              writer.flush();
+              socket.close();
             } catch (IOException e1) {
               System.err.println("[WARNING] Can't close a client's socket.");
             }
@@ -99,7 +109,6 @@ public class Match implements Runnable {
 
   synchronized void kill() {
     currentThread.interrupt();
-    System.out.println("[DEBUG] in interrupt of Match");
   }
 
   public UUID getId() {

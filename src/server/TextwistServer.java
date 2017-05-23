@@ -89,11 +89,11 @@ public class TextwistServer {
     System.out.println("[LOG] HeartbeatMonitor is up and running.");
 
     // Server's life cycle
-
+    /*
     while (keepRunning) {
 
     }
-
+    */
 
   }
 

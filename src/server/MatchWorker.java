@@ -51,7 +51,7 @@ public class MatchWorker implements Runnable {
         while (word.length() < 7) word = pickRandomWord(); // choosing a word that's long enough
         word = shuffle(word); // shuffling the letters
         // match creation
-        Match match = new Match(word);
+        Match match = new Match(word,matches);
         match.addPlayer(owner);
         for (String player : players) match.addPlayer(player);
         matches.add(match);
@@ -79,9 +79,11 @@ public class MatchWorker implements Runnable {
         UUID id = UUID.fromString(tokens[1]);
         String answer = tokens[2];
         synchronized (matches) {
+          boolean found = false;
           for (Match match : matches) {
             if (match.getId().equals(id)) {
               System.out.println("[DEBUG] found match, answer: " + answer);
+              found = true;
               if (answer.equals("OK")) {
                 match.confirm(userSocket);
                 System.out.println("[DEBUG] answer was ok");
@@ -91,6 +93,14 @@ public class MatchWorker implements Runnable {
                 operation = 1; // little workaround to close this socket in case of refuse
               }
             }
+          }
+          if (!found) {
+            BufferedWriter wr = new BufferedWriter(new OutputStreamWriter(userSocket.getOutputStream()));
+            wr.write("NO:expired");
+            wr.newLine();
+            wr.flush();
+            operation = 1; // little workaround to close this socket in case of expiration
+            System.out.println("[DEBUG] match not found");
           }
         }
       }

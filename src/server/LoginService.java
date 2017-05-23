@@ -69,4 +69,10 @@ public class LoginService implements LoginServiceInterface {
     return usersMonitor.getOnlineUsers();
   }
 
+  @Override
+  public String heartbeat() throws RemoteException {
+    System.out.println("[ALIVE]");
+    return "I'm alive";
+  }
+
 }

@@ -1,10 +1,10 @@
 package client.controller;
 
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
-import javafx.scene.control.Alert;
 import javafx.scene.image.Image;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
@@ -50,6 +50,7 @@ public class MainApp extends Application {
   private final String SERVER_NAME = "TEXTWISTSERVER";
   public final int MATCH_PORT = 8686;
   public final String SERVER_ADDRESS = "localhost";
+  private Thread heartMonitor;
 
   public static void main(String args[]) {
     launch(args);
@@ -64,12 +65,29 @@ public class MainApp extends Application {
     initRootView();
     showIndexView();
     initRemoteServices();
+    // launching server's heartbeat monitoring thread
+    heartMonitor = new Thread(() -> {
+      while(!Thread.currentThread().isInterrupted()) {
+        try {
+          loginService.heartbeat();
+          Thread.sleep(1000); // TODO: 1 sec maybe is too short? ask to IPA
+        } catch (RemoteException e) {
+          // the server is crashed
+          Platform.runLater(() -> showWaitingView("The server crashed!",false));
+          Thread.currentThread().interrupt();
+        } catch (InterruptedException e) {
+          // shutting down
+        }
+      }
+    });
+    heartMonitor.start();
   }
 
   @Override
   public void stop() {
     // TODO: do here all of your cleanings
-    logout(currentUser);
+    if (currentUser != null) logout(currentUser);
+    if (heartMonitor != null) heartMonitor.interrupt();
     System.exit(0);
   }
 
@@ -81,9 +99,8 @@ public class MainApp extends Application {
       Registry registry = LocateRegistry.getRegistry(REGISTRY_PORT);
       loginService = (LoginServiceInterface) registry.lookup(SERVER_NAME);
     } catch (RemoteException e) {
-      System.err.println(e.getMessage());
-      System.err.println("[DEBUG] Error in initRemoteServices.");
-      System.exit(1);
+      showWaitingView("The server is down, please retry later.", false);
+      //System.exit(1);
     } catch (NotBoundException e) {
       System.err.println(e.getMessage());
       System.err.println("[DEBUG] Error in initRemoteServices - Can't find the remote service.");
@@ -396,7 +413,7 @@ public class MainApp extends Application {
    * Shows the Waiting view.
    * @param info is the string to be shown in the view.
    */
-  void showWaitingView(String info) {
+  void showWaitingView(String info, boolean showButton) {
     try {
       FXMLLoader loader = new FXMLLoader();
       loader.setLocation(MainApp.class.getResource("/client/view/waiting.fxml"));
@@ -405,7 +422,7 @@ public class MainApp extends Application {
       waitingView.setStyle("-fx-background-image: url('" + wallPath + "'); -fx-background-position: center center; -fx-background-repeat: stretch");
       rootView.setCenter(waitingView);
       WaitingController controller = loader.getController();
-      controller.setMainApp(this);
+      controller.setMainApp(this, currentUser, showButton);
       controller.setInfo(info);
     } catch (IOException e) {
       System.err.println(e.getMessage());

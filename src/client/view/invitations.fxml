@@ -42,11 +42,19 @@
                   <Insets top="25.0" />
                </padding>
             </HBox>
-            <Button fx:id="backButton" maxWidth="120.0" mnemonicParsing="false" onAction="#handleBackButton" text="Back">
+            <HBox alignment="CENTER" spacing="25.0">
+               <children>
+                  <Button fx:id="backButton" maxWidth="120.0" mnemonicParsing="false" onAction="#handleBackButton" prefWidth="120.0" text="Back">
+                     <VBox.margin>
+                        <Insets top="15.0" />
+                     </VBox.margin>
+                  </Button>
+                  <Button fx:id="refreshButton" layoutX="250.0" layoutY="398.0" maxWidth="120.0" mnemonicParsing="false" onAction="#handleRefreshButton" prefWidth="120.0" text="Refresh" />
+               </children>
                <VBox.margin>
                   <Insets top="15.0" />
                </VBox.margin>
-            </Button>
+            </HBox>
          </children>
       </VBox>
    </children>

@@ -35,15 +35,6 @@ public class InvitationsController {
   @FXML
   private ListView<Invitation> invitationsList;
 
-  @FXML
-  private Button backButton;
-
-  @FXML
-  private Button acceptButton;
-
-  @FXML
-  private Button declineButton;
-
   void setMainApp(MainApp mainApp, String username) {
     this.mainApp = mainApp;
     this.username = username;
@@ -62,7 +53,7 @@ public class InvitationsController {
       infoLabel.setTextFill(Color.RED);
       infoLabel.setText(":( Ow! It seems that your selection is empty, choose an invitation!");
     } else {
-      mainApp.showWaitingView("Waiting the other players...");
+      mainApp.showWaitingView("Waiting the other players...", false);
       Thread matchListener = new Thread(() -> {
         String message = "2:" + selected.get(0).getMatchId() + ":OK";
         Socket socket = null;
@@ -75,16 +66,23 @@ public class InvitationsController {
           writer.newLine();
           writer.flush();
           String response = reader.readLine();
-          Platform.runLater(() -> mainApp.showWaitingView(response));
+          System.out.println("[DEBUG] Match response: " + response);
+          String[] tokens = response.split(":");
+          if (tokens[0].equals("OK"))
+            Platform.runLater(() -> mainApp.showWaitingView(response, true));
+          else
+            if (tokens[1].equals("timeout"))
+              Platform.runLater(() -> mainApp.showWaitingView("The waiting time is over!", true));
+            else
+              if (tokens[1].equals("refuse"))
+                Platform.runLater(() -> mainApp.showWaitingView("Someone refused the challenge.", true));
+              else
+                Platform.runLater(() -> mainApp.showWaitingView("This match is expired!", true));
         } catch (UnknownHostException e) {
           System.err.println("[ERROR] Unknown host - configuration error.");
           System.exit(1);
-        } catch (SocketException e) {
-          System.out.println("[DEBUG] Someone refused or timeout");
-          Platform.runLater(() -> mainApp.showWaitingView("Someone refused the challenge, or the waiting time is over!"));
         } catch (IOException e) {
-          System.err.println("[ERROR] I/O error.");
-          System.exit(1);
+          System.err.println("[ERROR] I/O exception");
         } finally {
           if (socket != null) try {
             socket.close();
@@ -140,6 +138,14 @@ public class InvitationsController {
   @FXML
   void handleBackButton() {
     mainApp.showUserView(username);
+  }
+
+  /**
+   * Handles the Refresh button, when pressed it refresh the current view.
+   */
+  @FXML
+  void handleRefreshButton() {
+    mainApp.showInvitationsView(username);
   }
 
 }

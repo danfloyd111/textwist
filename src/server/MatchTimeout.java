@@ -19,7 +19,8 @@ public class MatchTimeout implements Runnable {
   @Override
   public void run() {
     try {
-      Thread.sleep(10000); // TODO: set to 7 minutes
+      Thread.sleep(1000 * 60 * 7); // waiting time: 7 minutes
+      match.timeoutFlag = true;
       match.kill();
     } catch (InterruptedException e) {
       // do nothing, all the users joined the match
