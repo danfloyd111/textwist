@@ -17,7 +17,7 @@
                   <Font name="System Bold" size="25.0" />
                </font>
             </Label>
-            <Button fx:id="backButton" maxWidth="70.0" mnemonicParsing="false" onAction="#handleBackButton" text="Back">
+            <Button fx:id="backButton" defaultButton="true" maxWidth="70.0" mnemonicParsing="false" onAction="#handleBackButton" text="Back">
                <VBox.margin>
                   <Insets top="55.0" />
                </VBox.margin>

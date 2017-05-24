@@ -12,12 +12,12 @@
    <children>
       <VBox alignment="CENTER" layoutX="250.0" layoutY="100.0" prefHeight="400.0" prefWidth="600.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
          <children>
-            <Label fx:id="titleLabel" graphicTextGap="8.0" text="Text Twist !">
+            <Label fx:id="titleLabel" focusTraversable="false" graphicTextGap="8.0" text="Text Twist !">
                <font>
                   <Font name="System Bold" size="70.0" />
                </font>
             </Label>
-            <Button fx:id="loginButton" mnemonicParsing="false" onAction="#handleLoginButton" prefHeight="30.0" prefWidth="85.0" text="Login">
+            <Button fx:id="loginButton" defaultButton="true" mnemonicParsing="false" onAction="#handleLoginButton" prefHeight="30.0" prefWidth="85.0" text="Login">
                <font>
                   <Font size="15.0" />
                </font>

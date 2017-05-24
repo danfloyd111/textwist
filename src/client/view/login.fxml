@@ -52,12 +52,12 @@
                   <Insets top="10.0" />
                </VBox.margin>
             </HBox>
-            <Button fx:id="loginButton" mnemonicParsing="false" onAction="#handleLoginButton" prefHeight="30.0" prefWidth="85.0" text="Login">
+            <Button fx:id="loginButton" defaultButton="true" mnemonicParsing="false" onAction="#handleLoginButton" prefHeight="30.0" prefWidth="85.0" text="Login">
                <VBox.margin>
                   <Insets top="25.0" />
                </VBox.margin>
             </Button>
-            <Button fx:id="cancelButton" layoutX="282.0" layoutY="315.0" mnemonicParsing="false" onAction="#handleCancelButton" prefHeight="30.0" prefWidth="85.0" text="Cancel">
+            <Button fx:id="cancelButton" cancelButton="true" layoutX="282.0" layoutY="315.0" mnemonicParsing="false" onAction="#handleCancelButton" prefHeight="30.0" prefWidth="85.0" text="Cancel">
                <VBox.margin>
                   <Insets top="20.0" />
                </VBox.margin>

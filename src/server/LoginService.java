@@ -71,7 +71,6 @@ public class LoginService implements LoginServiceInterface {
 
   @Override
   public String heartbeat() throws RemoteException {
-    System.out.println("[ALIVE]");
     return "I'm alive";
   }
 

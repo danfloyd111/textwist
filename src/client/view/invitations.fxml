@@ -35,7 +35,7 @@
             </ListView>
             <HBox alignment="CENTER" prefWidth="200.0" spacing="25.0">
                <children>
-                  <Button fx:id="acceptButton" mnemonicParsing="false" onAction="#handleAcceptButton" prefWidth="120.0" text="Accept" />
+                  <Button fx:id="acceptButton" defaultButton="true" mnemonicParsing="false" onAction="#handleAcceptButton" prefWidth="120.0" text="Accept" />
                   <Button fx:id="declineButton" mnemonicParsing="false" onAction="#handleDeclineButton" prefWidth="120.0" text="Decline" />
                </children>
                <padding>
@@ -44,7 +44,7 @@
             </HBox>
             <HBox alignment="CENTER" spacing="25.0">
                <children>
-                  <Button fx:id="backButton" maxWidth="120.0" mnemonicParsing="false" onAction="#handleBackButton" prefWidth="120.0" text="Back">
+                  <Button fx:id="backButton" cancelButton="true" maxWidth="120.0" mnemonicParsing="false" onAction="#handleBackButton" prefWidth="120.0" text="Back">
                      <VBox.margin>
                         <Insets top="15.0" />
                      </VBox.margin>

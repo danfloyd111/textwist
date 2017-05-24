@@ -69,7 +69,7 @@ public class InvitationsController {
           System.out.println("[DEBUG] Match response: " + response);
           String[] tokens = response.split(":");
           if (tokens[0].equals("OK"))
-            Platform.runLater(() -> mainApp.showWaitingView(response, true));
+            Platform.runLater(() -> mainApp.showGameView(tokens[1],Integer.parseInt(tokens[2])));
           else
             if (tokens[1].equals("timeout"))
               Platform.runLater(() -> mainApp.showWaitingView("The waiting time is over!", true));

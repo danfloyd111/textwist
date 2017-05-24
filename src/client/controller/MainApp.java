@@ -42,14 +42,14 @@ public class MainApp extends Application {
   private LoginServiceInterface loginService;
   private InvitationNotifierInterface notifierService;
   private InvitationNotifierInterface stub;
-  private String currentUser;
+  String currentUser;
   private List<Invitation> invitationsList;
 
   private final int REGISTRY_PORT = 8888;
   private final int HEIGHT = 600, WIDTH = 750;
   private final String SERVER_NAME = "TEXTWISTSERVER";
-  public final int MATCH_PORT = 8686;
-  public final String SERVER_ADDRESS = "localhost";
+  final int MATCH_PORT = 8686;
+  final String SERVER_ADDRESS = "localhost";
   private Thread heartMonitor;
 
   public static void main(String args[]) {
@@ -70,7 +70,7 @@ public class MainApp extends Application {
       while(!Thread.currentThread().isInterrupted()) {
         try {
           loginService.heartbeat();
-          Thread.sleep(1000); // TODO: 1 sec maybe is too short? ask to IPA
+          Thread.sleep(1000);
         } catch (RemoteException e) {
           // the server is crashed
           Platform.runLater(() -> showWaitingView("The server crashed!",false));
@@ -427,6 +427,27 @@ public class MainApp extends Application {
     } catch (IOException e) {
       System.err.println(e.getMessage());
       System.err.println("[DEBUG] Error in showWaitingView.");
+      System.exit(1);
+    }
+  }
+
+  /**
+   * Shows the Game view.
+   * @param letters are the letters chosen by the server for the game.
+   */
+  void showGameView(String letters, int wordsPort) {
+    try {
+      FXMLLoader loader = new FXMLLoader();
+      loader.setLocation(MainApp.class.getResource("/client/view/game.fxml"));
+      AnchorPane gameView = loader.load();
+      String wallPath = MainApp.class.getResource("/res/crop1.jpg").toExternalForm();
+      gameView.setStyle("-fx-background-image: url('" + wallPath + "'); -fx-background-position: center center; -fx-background-repeat: stretch");
+      rootView.setCenter(gameView);
+      GameController controller = loader.getController();
+      controller.setMainApp(this, letters, wordsPort);
+    } catch (IOException e) {
+      System.err.println(e.getMessage());
+      System.err.println("[DEBUG] Error in showGameView.");
       System.exit(1);
     }
   }

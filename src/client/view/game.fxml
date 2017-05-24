@@ -8,26 +8,31 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<AnchorPane prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="client.controller.AfterstartController">
+<AnchorPane prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="client.controller.GameController">
    <children>
       <VBox alignment="CENTER" layoutX="250.0" layoutY="100.0" prefHeight="400.0" prefWidth="600.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
          <children>
-            <Label fx:id="statusLabel" text="Label">
+            <Label text="Compose words with these letters:">
                <font>
-                  <Font name="System Bold" size="30.0" />
+                  <Font name="System Bold" size="25.0" />
                </font>
             </Label>
-            <Label fx:id="infoLabel" text="Label">
+            <Label fx:id="lettersLabel" text="letters">
                <VBox.margin>
-                  <Insets top="20.0" />
+                  <Insets top="25.0" />
                </VBox.margin>
                <font>
-                  <Font size="20.0" />
+                  <Font size="30.0" />
                </font>
             </Label>
-            <Button defaultButton="true" mnemonicParsing="false" onAction="#handleBackButton" text="Back">
+            <TextField fx:id="wordField" maxWidth="200.0">
                <VBox.margin>
-                  <Insets top="70.0" />
+                  <Insets top="25.0" />
+               </VBox.margin>
+            </TextField>
+            <Button fx:id="sendButton" defaultButton="true" maxWidth="100.0" mnemonicParsing="false" onAction="#handleSendButton" text="Send">
+               <VBox.margin>
+                  <Insets top="35.0" />
                </VBox.margin>
             </Button>
          </children>

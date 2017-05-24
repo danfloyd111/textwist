@@ -67,12 +67,12 @@
                   <Insets top="10.0" />
                </VBox.margin>
             </HBox>
-            <Button mnemonicParsing="false" onAction="#handleSignupButton" prefHeight="30.0" prefWidth="85.0" text="Sign Up">
+            <Button defaultButton="true" mnemonicParsing="false" onAction="#handleSignupButton" prefHeight="30.0" prefWidth="85.0" text="Sign Up">
                <VBox.margin>
                   <Insets top="25.0" />
                </VBox.margin>
             </Button>
-            <Button layoutX="282.0" layoutY="332.0" mnemonicParsing="false" onAction="#handleCancelButton" prefHeight="30.0" prefWidth="85.0" text="Back">
+            <Button cancelButton="true" layoutX="282.0" layoutY="332.0" mnemonicParsing="false" onAction="#handleCancelButton" prefHeight="30.0" prefWidth="85.0" text="Back">
                <VBox.margin>
                   <Insets top="10.0" />
                </VBox.margin>

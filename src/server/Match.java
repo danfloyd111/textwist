@@ -2,8 +2,12 @@ package server;
 
 import java.io.BufferedWriter;
 import java.io.IOException;
+import java.io.InterruptedIOException;
 import java.io.OutputStreamWriter;
+import java.net.DatagramPacket;
+import java.net.DatagramSocket;
 import java.net.Socket;
+import java.net.SocketException;
 import java.util.*;
 
 /**
@@ -23,8 +27,9 @@ public class Match implements Runnable {
   private final Object monitor;
   private ArrayList<Socket> sockets;
   private Thread currentThread;
-  public volatile boolean timeoutFlag;
+  volatile boolean timeoutFlag;
   private final List<Match> matches;
+  private DatagramSocket wordsSocket = null;
 
 
   Match(String word, List<Match> matches) {
@@ -79,10 +84,33 @@ public class Match implements Runnable {
     if (keepGoing) {
       System.out.println("[DEBUG] OK! Match started.");
       timeout.interrupt();
+      try {
+        wordsSocket = new DatagramSocket();
+      } catch (SocketException e) {
+        System.err.println("[ERROR] Can't create the datagram socket!");
+      }
+      Thread wordsListener = new Thread(() -> {
+        while(!Thread.currentThread().isInterrupted()) {
+          try {
+            byte[] bytes = new byte[200];
+            DatagramPacket packet = new DatagramPacket(bytes, bytes.length);
+            wordsSocket.receive(packet);
+            String message = new String(packet.getData());
+            String tokens[] = message.split(":");
+            // TODO: create a getPoints functions and update players map
+            System.out.println("[DEBUG] tokens -> " + message);
+          } catch (InterruptedIOException e) {
+            // shutting down
+          } catch (IOException e) {
+            Thread.currentThread().interrupt();
+          }
+        }
+      });
+      wordsListener.start();
       sockets.forEach(socket -> {
         try {
           BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
-          writer.write("OK:Queste sono le lettere");
+          writer.write("OK:" + word + ":" + wordsSocket.getLocalPort());
           writer.newLine();
           writer.flush();
           socket.close();
@@ -90,6 +118,14 @@ public class Match implements Runnable {
           System.err.println("[WARNING] A client crashed while receiving letters.");
         }
       });
+      try {
+        Thread.sleep(30000); // TODO: sleep 2 min
+      } catch (InterruptedException e) {
+        System.err.println("[ERROR] Match interrupted while sleeping!");
+      }
+      wordsListener.interrupt();
+      wordsSocket.close();
+      // TODO: here broadcast the results, they are in players map
     } else {
       if (timeout.isAlive()) timeout.interrupt();
     }

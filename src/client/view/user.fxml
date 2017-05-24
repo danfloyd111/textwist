@@ -28,7 +28,7 @@
             </HBox>
             <HBox alignment="CENTER" layoutX="10.0" layoutY="230.0" spacing="40.0">
                <children>
-                  <Button fx:id="logoutButton" mnemonicParsing="false" onAction="#handleLogoutButton" prefWidth="150.0" text="Logout" />
+                  <Button fx:id="logoutButton" cancelButton="true" mnemonicParsing="false" onAction="#handleLogoutButton" prefWidth="150.0" text="Logout" />
                   <Button fx:id="rankingButton" mnemonicParsing="false" onAction="#handleRankingButton" prefWidth="150.0" text="Ranking" />
                </children>
                <VBox.margin>

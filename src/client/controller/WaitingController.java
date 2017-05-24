@@ -18,10 +18,10 @@ public class WaitingController {
   private String username;
 
   @FXML
-  Label infoLabel;
+  private Label infoLabel;
 
   @FXML
-  Button backButton;
+  private Button backButton;
 
   void setMainApp(MainApp mainApp, String username, boolean showButton) {
     this.mainApp = mainApp;
