@@ -2,13 +2,18 @@ package server;
 
 import model.User;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.rmi.AlreadyBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
 import java.sql.*;
+import java.util.ArrayList;
 import java.util.Properties;
+import java.util.stream.Stream;
 
 /**
  * @author Daniele Paolini
@@ -34,13 +39,17 @@ public class TextwistServer {
 
   private static HeartbeatMonitor heartbeatMonitor;
 
+  private static ArrayList<String> dictionary;
+
   public static void main(String args[]) {
 
     System.out.println("[LOG] Textwist server going up!");
 
-    // Monitors initializations
+    // Initializing the users monitor
 
+    System.out.println("[LOG] Initializing the users monitor...");
     usersMonitor = new UsersMonitor();
+    System.out.println("[LOG] Monitors initialized.");
 
     // Shutdown hook installation
 
@@ -57,6 +66,18 @@ public class TextwistServer {
       System.out.println("[LOG] Shutdown hook triggered, the server is going down.");
     }));
 
+    // Reading the dictionary
+
+    System.out.println("[LOG] Reading the dictionary...");
+    dictionary = new ArrayList<>();
+    try (Stream<String> stream = Files.lines(Paths.get("resources/dictionary.txt"))) {
+      stream.forEach(dictionary::add);
+    } catch (IOException e) {
+      System.err.println("[ERROR] Can't read the dictionary");
+      System.exit(1);
+    }
+    System.out.println("[LOG] Dictionary loaded.");
+
     // Database initialization
 
     initDatabase();
@@ -71,7 +92,7 @@ public class TextwistServer {
     // Initializing MatchMaster thread
 
     System.out.println("[LOG] Initializing MatchMaster...");
-    matchMaster = new MatchMaster(MATCH_PORT, usersMonitor);
+    matchMaster = new MatchMaster(MATCH_PORT, usersMonitor, dictionary, database);
     Thread matchMasterThread = new Thread(matchMaster);
     matchMasterThread.start();
     System.out.println("[LOG] MatchMaster is up and running.");
@@ -81,11 +102,7 @@ public class TextwistServer {
     System.out.println("[LOG] Initializing HeartbeatMonitor...");
     heartbeatMonitor = new HeartbeatMonitor(usersMonitor);
     Thread heartbeatMonitorThread = new Thread(heartbeatMonitor);
-
-
-    System.out.println("[LOG] Initializing monitors...");
-    usersMonitor = new UsersMonitor();
-    System.out.println("[LOG] Monitors initialized.");heartbeatMonitorThread.start();
+    heartbeatMonitorThread.start();
     System.out.println("[LOG] HeartbeatMonitor is up and running.");
 
     // Server's life cycle

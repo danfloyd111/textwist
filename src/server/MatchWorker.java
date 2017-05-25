@@ -4,6 +4,7 @@ import java.io.*;
 import java.net.Socket;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -24,11 +25,15 @@ public class MatchWorker implements Runnable {
   private Socket userSocket;
   private UsersMonitor usersMonitor;
   private final List<Match> matches;
+  private final ArrayList<String> words;
+  private final Connection database;
 
-  MatchWorker(Socket userSocket, UsersMonitor usersMonitor, List<Match> matches) {
+  MatchWorker(Socket userSocket, UsersMonitor usersMonitor, List<Match> matches, ArrayList<String> words, Connection database) {
     this.userSocket = userSocket;
     this.usersMonitor = usersMonitor;
     this.matches = matches;
+    this.words = words;
+    this.database = database;
   }
 
   @Override
@@ -48,10 +53,10 @@ public class MatchWorker implements Runnable {
         String players[] = new String[tokens.length - 2];
         System.arraycopy(tokens, 2, players, 0, tokens.length - 2);
         String word = "";
-        while (word.length() < 7) word = pickRandomWord(); // choosing a word that's long enough
+        while (word.length() < 7) word = pickRandomWord(words); // choosing a word that's long enough
         word = shuffle(word); // shuffling the letters
         // match creation
-        Match match = new Match(word,matches);
+        Match match = new Match(word,matches,words, database);
         match.addPlayer(owner);
         for (String player : players) match.addPlayer(player);
         matches.add(match);
@@ -127,11 +132,7 @@ public class MatchWorker implements Runnable {
    * @return a random word.
    */
   @SuppressWarnings("Convert2MethodRef")
-  private String pickRandomWord() throws IOException {
-    ArrayList<String> words = new ArrayList<>();
-    try (Stream<String> stream = Files.lines(Paths.get("resources/dictionary.txt"))) {
-      stream.forEach(s -> words.add(s));
-    }
+  private String pickRandomWord(ArrayList<String> words) {
     Random generator = new Random(System.currentTimeMillis());
     return words.get(generator.nextInt(words.size()));
   }

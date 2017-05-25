@@ -39,7 +39,7 @@ public class GameController {
     }
     String s = builder.toString();
     lettersLabel.setTextFill(Color.GREEN);
-    lettersLabel.setText(s.trim());
+    lettersLabel.setText(s.substring(0, s.length()-1));
     try {
       sender = new DatagramSocket();
       listener = InetAddress.getByName(mainApp.SERVER_ADDRESS);

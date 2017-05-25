@@ -3,6 +3,7 @@ package server;
 import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -24,11 +25,15 @@ public class MatchMaster implements Runnable {
   private ExecutorService workersPool;
   private UsersMonitor usersMonitor;
   private List<Match> matches;
+  private ArrayList<String> dictionary;
+  private Connection database;
 
-  MatchMaster(int port, UsersMonitor usersMonitor) {
+  MatchMaster(int port, UsersMonitor usersMonitor, ArrayList<String> dictionary, Connection database) {
     keepRunning = true;
     workersPool = Executors.newCachedThreadPool();
     matches = Collections.synchronizedList(new ArrayList<Match>());
+    this.database = database;
+    this.dictionary = dictionary;
     this.usersMonitor = usersMonitor;
     try {
       socket = new ServerSocket(port);
@@ -44,7 +49,7 @@ public class MatchMaster implements Runnable {
     while (keepRunning) {
       try {
         userSocket = socket.accept();
-        workersPool.submit(new MatchWorker(userSocket, usersMonitor, matches));
+        workersPool.submit(new MatchWorker(userSocket, usersMonitor, matches, dictionary, database));
       } catch (IOException e) {
         // System.err.println("[WARNING] MatchMaster caught an I/O exception.");
         // TODO : kill all the remaining matches
