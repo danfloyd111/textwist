@@ -170,7 +170,7 @@ public class Match implements Runnable {
     synchronized (monitor) {
       sockets.add(s);
       playerCount++;
-      monitor.notify();
+      monitor.notifyAll();
     }
   }
 

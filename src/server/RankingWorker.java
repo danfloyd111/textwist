@@ -42,6 +42,9 @@ public class RankingWorker implements Runnable {
         writer.newLine();
         writer.flush();
       }
+      writer.write("END");
+      writer.newLine();
+      writer.flush();
     } catch (SQLException e) {
       System.err.println(e.getMessage());
       System.err.println("[ERROR] RankingWorker can't establish a connection with the db.");

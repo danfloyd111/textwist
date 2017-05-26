@@ -50,6 +50,7 @@ public class MainApp extends Application {
   private final String SERVER_NAME = "TEXTWISTSERVER";
   final int MATCH_PORT = 8686;
   final String SERVER_ADDRESS = "localhost";
+  final int RANKING_PORT = 8787;
   private Thread heartMonitor;
 
   public static void main(String args[]) {
@@ -448,6 +449,27 @@ public class MainApp extends Application {
     } catch (IOException e) {
       System.err.println(e.getMessage());
       System.err.println("[DEBUG] Error in showGameView.");
+      System.exit(1);
+    }
+  }
+
+  /**
+   * Shows the Ranking view
+   * @param username is the username of the user that wants to see the Ranking.
+   */
+  void showRankingView(String username) {
+    try {
+      FXMLLoader loader = new FXMLLoader();
+      loader.setLocation(MainApp.class.getResource("/client/view/ranking.fxml"));
+      AnchorPane rankingView = loader.load();
+      String wallPath = MainApp.class.getResource("/res/crop1.jpg").toExternalForm();
+      rankingView.setStyle("-fx-background-image: url('" + wallPath + "'); -fx-background-position: center center; -fx-background-repeat: stretch");
+      rootView.setCenter(rankingView);
+      RankingController controller = loader.getController();
+      controller.setMainApp(this, username);
+    } catch (IOException e) {
+      System.err.println(e.getMessage());
+      System.err.println("[DEBUG] Error in showRankingView.");
       System.exit(1);
     }
   }

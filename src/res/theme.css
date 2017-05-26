@@ -65,3 +65,7 @@
 .list-view .hide-thumb .scroll-bar:vertical .thumb {
     -fx-background-color: transparent;
 }
+
+.table-column {
+    -fx-alignment: center;
+}

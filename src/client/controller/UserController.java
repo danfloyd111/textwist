@@ -47,7 +47,7 @@ public class UserController {
    */
   @FXML
   private void handleRankingButton() {
-    System.out.println("[DEBUG] Ranking button pressed.");
+    mainApp.showRankingView(username);
   }
 
   /**
