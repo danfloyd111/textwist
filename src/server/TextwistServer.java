@@ -30,6 +30,7 @@ public class TextwistServer {
   private static final int SERVICE_PORT = 9999;
   private static final String SERVER_NAME = "TEXTWISTSERVER";
   private static final int MATCH_PORT = 8686;
+  private static final int RANKING_PORT = 8787;
 
   private static Connection database;
 
@@ -40,6 +41,8 @@ public class TextwistServer {
   private static HeartbeatMonitor heartbeatMonitor;
 
   private static ArrayList<String> dictionary;
+
+  private static RankingMaster rankingMaster;
 
   public static void main(String args[]) {
 
@@ -58,6 +61,7 @@ public class TextwistServer {
       keepRunning = false;
       matchMaster.shutdown();
       heartbeatMonitor.shutdown();
+      rankingMaster.shutdown();
       try {
         mainThread.join();
       } catch (InterruptedException e) {
@@ -104,6 +108,14 @@ public class TextwistServer {
     Thread heartbeatMonitorThread = new Thread(heartbeatMonitor);
     heartbeatMonitorThread.start();
     System.out.println("[LOG] HeartbeatMonitor is up and running.");
+
+    // Initializing RankingMaster thread
+
+    System.out.println("[LOG] Initializing RankingMaster...");
+    rankingMaster = new RankingMaster(RANKING_PORT, database);
+    Thread rankingMasterThread = new Thread(rankingMaster);
+    rankingMasterThread.start();
+    System.out.println("[LOG] Ranking master up and running.");
 
     // Server's life cycle
     /*

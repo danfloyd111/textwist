@@ -51,7 +51,7 @@ public class MatchMaster implements Runnable {
         userSocket = socket.accept();
         workersPool.submit(new MatchWorker(userSocket, usersMonitor, matches, dictionary, database));
       } catch (IOException e) {
-        // System.err.println("[WARNING] MatchMaster caught an I/O exception.");
+        // do nothing, server going down
         // TODO : kill all the remaining matches
       }
     }
