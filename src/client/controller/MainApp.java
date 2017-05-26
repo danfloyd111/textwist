@@ -70,7 +70,7 @@ public class MainApp extends Application {
     heartMonitor = new Thread(() -> {
       while(!Thread.currentThread().isInterrupted()) {
         try {
-          loginService.heartbeat();
+          if (loginService != null) loginService.heartbeat();
           Thread.sleep(1000);
         } catch (RemoteException e) {
           // the server is crashed

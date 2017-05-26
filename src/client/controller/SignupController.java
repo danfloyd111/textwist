@@ -52,7 +52,7 @@ public class SignupController {
         infoLabel.setText("Well done \"" + usernameField.getText() + "\"! Go back and login to start playing!");
       } else {
         infoLabel.setTextFill(Color.RED);
-        infoLabel.setText(":( Ow! Maybe \"" + usernameField.getText() + "\" was already chosen, try with a different one.");
+        infoLabel.setText(":( Ow! \"" + usernameField.getText() + "\" was already chosen, try with a different one.");
       }
     }
 
