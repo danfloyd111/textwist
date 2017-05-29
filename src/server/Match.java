@@ -98,6 +98,7 @@ public class Match implements Runnable {
         System.err.println("[ERROR] Can't create the datagram socket!");
       }
       Thread wordsListener = new Thread(() -> {
+        ArrayList<String> words = new ArrayList<>();
         while(!Thread.currentThread().isInterrupted()) {
           try {
             byte[] bytes = new byte[200];
@@ -106,6 +107,14 @@ public class Match implements Runnable {
             String message = new String(packet.getData());
             String tokens[] = message.split(":");
             int points = getPoints(createWordMap(word), tokens[1].trim());
+            if (points != 0) {
+              // checking if the player have already used the word
+              String entry = tokens[0] + ":" + tokens[1].trim();
+              if (words.contains(entry))
+                points = 0;
+              else
+                words.add(entry);
+            }
             players.put(tokens[0], players.get(tokens[0]) + points);
             System.out.println("[DEBUG] received -> " + tokens[1].trim() + " from " + tokens[0] + " / points: " + points);
           } catch (InterruptedIOException e) {
