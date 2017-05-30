@@ -436,7 +436,7 @@ public class MainApp extends Application {
    * Shows the Game view.
    * @param letters are the letters chosen by the server for the game.
    */
-  void showGameView(String letters, int wordsPort) {
+  void showGameView(String letters, int wordsPort, String multicastAddress) {
     try {
       FXMLLoader loader = new FXMLLoader();
       loader.setLocation(MainApp.class.getResource("/client/view/game.fxml"));
@@ -445,7 +445,7 @@ public class MainApp extends Application {
       gameView.setStyle("-fx-background-image: url('" + wallPath + "'); -fx-background-position: center center; -fx-background-repeat: stretch");
       rootView.setCenter(gameView);
       GameController controller = loader.getController();
-      controller.setMainApp(this, letters, wordsPort);
+      controller.setMainApp(this, letters, wordsPort, multicastAddress);
     } catch (IOException e) {
       System.err.println(e.getMessage());
       System.err.println("[DEBUG] Error in showGameView.");

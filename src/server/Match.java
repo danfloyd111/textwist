@@ -4,10 +4,7 @@ import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.InterruptedIOException;
 import java.io.OutputStreamWriter;
-import java.net.DatagramPacket;
-import java.net.DatagramSocket;
-import java.net.Socket;
-import java.net.SocketException;
+import java.net.*;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -92,6 +89,12 @@ public class Match implements Runnable {
     if (keepGoing) {
       System.out.println("[DEBUG] OK! Match " + id.toString() + " started.");
       timeout.interrupt();
+      // Choosing a random Multicast address in the local scope
+      // collision probability: 1 / 255*255 = 1,54 * 10^-5
+      int fstOctet = 239, sndOctet = 255;
+      Random generator = new Random(System.currentTimeMillis());
+      int trdOctet = generator.nextInt(256), fthOctet = generator.nextInt(256);
+      String multicastAddress = fstOctet + "." + sndOctet + "." + trdOctet + "." + fthOctet;
       try {
         wordsSocket = new DatagramSocket();
       } catch (SocketException e) {
@@ -128,7 +131,7 @@ public class Match implements Runnable {
       sockets.forEach(socket -> {
         try {
           BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
-          writer.write("OK:" + word + ":" + wordsSocket.getLocalPort());
+          writer.write("OK:" + word + ":" + wordsSocket.getLocalPort() + ":" + multicastAddress);
           writer.newLine();
           writer.flush();
           socket.close();
@@ -137,7 +140,7 @@ public class Match implements Runnable {
         }
       });
       try {
-        Thread.sleep(60000); // TODO: sleep 2 an half min
+        Thread.sleep((60000 * 2) + 10000);
       } catch (InterruptedException e) {
         System.err.println("[ERROR] Match interrupted while sleeping!");
       }
@@ -165,7 +168,26 @@ public class Match implements Runnable {
           System.err.println("[ERROR] Can't update the database.");
         }
       }
-      // TODO: here broadcast the results, they are in players map
+      // Sending the results in Multicast
+      StringBuilder results = new StringBuilder();
+      for (Map.Entry<String, Integer> entry : players.entrySet()) {
+        results.append(entry.getKey());
+        results.append(":");
+        results.append(entry.getValue());
+      }
+      try {
+        InetAddress address = InetAddress.getByName("224.0.0.3");
+        byte[] data = results.toString().getBytes();
+        DatagramPacket packet = new DatagramPacket(data, data.length, address, 9000);
+        DatagramSocket mcSocket = new DatagramSocket();
+        System.out.println("[DEBUG] pronto a spedire");
+        mcSocket.send(packet);
+        System.out.println("[DEBUG] spedito");
+        mcSocket.close();
+      } catch (IOException e) {
+        System.err.println(e.getMessage());
+        System.err.println("[ERROR] Can't send the results in multicast.");
+      }
     } else {
       if (timeout.isAlive()) timeout.interrupt();
     }

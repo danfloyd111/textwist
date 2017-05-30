@@ -1,5 +1,6 @@
 package client.controller;
 
+import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
@@ -28,7 +29,7 @@ public class GameController {
   @FXML
   private TextField wordField;
 
-  void setMainApp(MainApp mainApp, String string, int wordsPort) {
+  void setMainApp(MainApp mainApp, String string, int wordsPort, String multicastAddress) {
     this.mainApp = mainApp;
     this.wordsPort = wordsPort;
     char[] letters = string.toCharArray();
@@ -47,6 +48,29 @@ public class GameController {
       System.err.println("[ERROR] Can't send any word to server!");
       mainApp.showWaitingView("There are configuration problems.", false);
     }
+    // Launching the timeout thread
+    Thread timeout = new Thread(() -> {
+      try {
+        InetAddress group = InetAddress.getByName("224.0.0.3");
+        MulticastSocket mcSocket = new MulticastSocket(9000);
+        mcSocket.joinGroup(group);
+        byte[] buffer = new byte[8192]; // 8KB should be enough
+        DatagramPacket packet = new DatagramPacket(buffer,buffer.length);
+        Thread.sleep(60000 * 2); // match time is 2 min
+        Platform.runLater(() -> mainApp.showWaitingView("Waiting for the results...", false));
+        System.out.println("[DEBUG] pronto a ricevere");
+        mcSocket.receive(packet);
+        String results = new String(packet.getData());
+        System.out.println("[MULTICAST] " + results.trim()); // TODO: show the partial results view instead of println!
+        mcSocket.leaveGroup(group);
+        mcSocket.close();
+      } catch (InterruptedException e) {
+        System.err.println("[ERROR] Timeout thread shouldn't be interrupted!");
+      } catch (IOException e) {
+        System.err.println("[ERROR] Can't get the partial results.");
+      }
+    });
+    timeout.start();
   }
 
   /**
