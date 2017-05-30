@@ -176,7 +176,7 @@ public class Match implements Runnable {
         results.append(entry.getValue());
       }
       try {
-        InetAddress address = InetAddress.getByName("224.0.0.3");
+        InetAddress address = InetAddress.getByName(multicastAddress);
         byte[] data = results.toString().getBytes();
         DatagramPacket packet = new DatagramPacket(data, data.length, address, 9000);
         DatagramSocket mcSocket = new DatagramSocket();

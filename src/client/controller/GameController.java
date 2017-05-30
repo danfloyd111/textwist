@@ -51,7 +51,7 @@ public class GameController {
     // Launching the timeout thread
     Thread timeout = new Thread(() -> {
       try {
-        InetAddress group = InetAddress.getByName("224.0.0.3");
+        InetAddress group = InetAddress.getByName(multicastAddress);
         MulticastSocket mcSocket = new MulticastSocket(9000);
         mcSocket.joinGroup(group);
         byte[] buffer = new byte[8192]; // 8KB should be enough
