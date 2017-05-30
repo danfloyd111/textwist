@@ -174,15 +174,14 @@ public class Match implements Runnable {
         results.append(entry.getKey());
         results.append(":");
         results.append(entry.getValue());
+        results.append(":");
       }
       try {
         InetAddress address = InetAddress.getByName(multicastAddress);
-        byte[] data = results.toString().getBytes();
+        byte[] data = results.toString().substring(0,results.toString().length() - 1).getBytes(); // removing the trailing ':'
         DatagramPacket packet = new DatagramPacket(data, data.length, address, 9000);
         DatagramSocket mcSocket = new DatagramSocket();
-        System.out.println("[DEBUG] pronto a spedire");
         mcSocket.send(packet);
-        System.out.println("[DEBUG] spedito");
         mcSocket.close();
       } catch (IOException e) {
         System.err.println(e.getMessage());

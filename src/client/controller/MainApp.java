@@ -474,4 +474,25 @@ public class MainApp extends Application {
     }
   }
 
+  /**
+   * Shows the Results view after a match.
+   * @param results is the string sent by the server in which are stored the results of the match.
+   */
+  void showResultsView(String results) {
+    try {
+      FXMLLoader loader = new FXMLLoader();
+      loader.setLocation(MainApp.class.getResource("/client/view/results.fxml"));
+      AnchorPane resultsView = loader.load();
+      String wallPath = MainApp.class.getResource("/res/crop1.jpg").toExternalForm();
+      resultsView.setStyle("-fx-background-image: url('" + wallPath + "'); -fx-background-position: center center; -fx-background-repeat: stretch");
+      rootView.setCenter(resultsView);
+      ResultsController controller = loader.getController();
+      controller.setMainApp(this,currentUser, results);
+    } catch (IOException e) {
+      System.err.println(e.getMessage());
+      System.err.println("[DEBUG] Error in showResultsView.");
+      System.exit(1);
+    }
+  }
+
 }

@@ -61,7 +61,7 @@ public class GameController {
         System.out.println("[DEBUG] pronto a ricevere");
         mcSocket.receive(packet);
         String results = new String(packet.getData());
-        System.out.println("[MULTICAST] " + results.trim()); // TODO: show the partial results view instead of println!
+        Platform.runLater(() -> mainApp.showResultsView(results.trim()));
         mcSocket.leaveGroup(group);
         mcSocket.close();
       } catch (InterruptedException e) {

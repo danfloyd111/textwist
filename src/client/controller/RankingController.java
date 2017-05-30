@@ -91,7 +91,6 @@ public class RankingController {
           matchesCol.setCellValueFactory(new PropertyValueFactory<>("matches"));
           pointsCol.setCellValueFactory(new PropertyValueFactory<>("points"));
           rankingTable.setItems(entries);
-          //rankingTable.getColumns().addAll(usernameCol, matchesCol, pointsCol);
           infoLabel.setText("Global Ranking");
         });
       } catch (IOException e) {
