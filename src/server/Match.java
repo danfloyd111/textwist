@@ -67,7 +67,7 @@ public class Match implements Runnable {
         try {
           monitor.wait();
         } catch (InterruptedException e) {
-          System.out.println("[DEBUG] Match invalidated.");
+          System.out.println("[DEBUG] Match " + id.toString() + " invalidated.");
           matches.remove(this);
           if (timeout.isAlive()) timeout.interrupt();
           sockets.forEach(socket -> {
@@ -90,7 +90,7 @@ public class Match implements Runnable {
         }
     }
     if (keepGoing) {
-      System.out.println("[DEBUG] OK! Match started.");
+      System.out.println("[DEBUG] OK! Match " + id.toString() + " started.");
       timeout.interrupt();
       try {
         wordsSocket = new DatagramSocket();

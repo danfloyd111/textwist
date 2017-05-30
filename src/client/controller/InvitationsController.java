@@ -4,18 +4,13 @@ import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
 import javafx.scene.control.*;
-import javafx.scene.layout.AnchorPane;
 import javafx.scene.paint.Color;
 import model.Invitation;
 
 import java.io.*;
 import java.net.Socket;
-import java.net.SocketException;
 import java.net.UnknownHostException;
-import java.util.Iterator;
-import java.util.List;
 
 /**
  * @author Daniele Paolini
@@ -53,6 +48,7 @@ public class InvitationsController {
       infoLabel.setTextFill(Color.RED);
       infoLabel.setText(":( Ow! It seems that your selection is empty, choose an invitation!");
     } else {
+      System.out.println("[DEBUG] in principio - there are " + mainApp.getInvitations().size() + " invitations.");
       mainApp.showWaitingView("Waiting the other players...", false);
       Thread matchListener = new Thread(() -> {
         String message = "2:" + selected.get(0).getMatchId() + ":OK";
@@ -74,7 +70,7 @@ public class InvitationsController {
             if (tokens[1].equals("timeout"))
               Platform.runLater(() -> mainApp.showWaitingView("The waiting time is over!", true));
             else
-              if (tokens[1].equals("refuse"))
+              if (tokens[1].equals("refused"))
                 Platform.runLater(() -> mainApp.showWaitingView("Someone refused the challenge.", true));
               else
                 Platform.runLater(() -> mainApp.showWaitingView("This match is expired!", true));
@@ -92,13 +88,31 @@ public class InvitationsController {
         }
       });
       matchListener.start();
-      Invitation sel = selected.get(0); // the selection mode is SINGLE
-      List<Invitation> invitations = mainApp.getInvitations();
-      invitations.remove(sel);
-      for (Invitation inv : invitations) {
-        String matchId = inv.getMatchId(); // TODO: decline this match invitation
-      }
-      invitations.clear();
+      // Declining all the other matches using a dedicated thread
+      String sel = selected.get(0).getMatchId(); // the selection mode is SINGLE
+      Thread matchDecliner = new Thread(() -> {
+        Socket socket;
+        try {
+          socket = new Socket(mainApp.SERVER_ADDRESS, mainApp.MATCH_PORT);
+          BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
+          socket.setSoTimeout(1000);
+          for (Invitation inv : mainApp.getInvitations()) {
+            if (!inv.getMatchId().equals(sel)) {
+              String message = "2:" + inv.getMatchId() + ":NO";
+              writer.write(message);
+              writer.newLine();
+              writer.flush();
+              socket.close();
+            }
+          }
+        } catch (IOException e) {
+          System.err.println(e.getMessage());
+          System.err.println("[ERROR] InvitationController can't decline the other matches: I/O Error!");
+        } finally {
+          mainApp.getInvitations().clear();
+        }
+      });
+      matchDecliner.start();
     }
   }
 
@@ -112,6 +126,7 @@ public class InvitationsController {
       infoLabel.setTextFill(Color.RED);
       infoLabel.setText(":( Ow! It seems that your selection is empty, choose an invitation!");
     } else {
+      // TODO : correct this behaviour!!! This code must be executed by another thread!!! Not the platform's one!!
       Platform.runLater(() -> {
         try {
           Socket socket = new Socket(mainApp.SERVER_ADDRESS, mainApp.MATCH_PORT);
