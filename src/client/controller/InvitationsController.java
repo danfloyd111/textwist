@@ -126,8 +126,7 @@ public class InvitationsController {
       infoLabel.setTextFill(Color.RED);
       infoLabel.setText(":( Ow! It seems that your selection is empty, choose an invitation!");
     } else {
-      // TODO : correct this behaviour!!! This code must be executed by another thread!!! Not the platform's one!!
-      Platform.runLater(() -> {
+      Thread decliner = new Thread(() -> {
         try {
           Socket socket = new Socket(mainApp.SERVER_ADDRESS, mainApp.MATCH_PORT);
           socket.setSoTimeout(1000);
@@ -141,6 +140,7 @@ public class InvitationsController {
           System.err.println("[ERROR] Cant' close the socket in handleAccept RunLater Thread");
         }
       });
+      decliner.start();
       Invitation inv = selected.get(0); // the selection mode is SINGLE
       mainApp.getInvitations().remove(inv);
       mainApp.showInvitationsView(username); // refresh the view
