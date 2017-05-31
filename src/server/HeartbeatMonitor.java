@@ -15,6 +15,7 @@ public class HeartbeatMonitor implements Runnable {
 
   private volatile boolean keepAlive;
   private UsersMonitor usersMonitor;
+  @SuppressWarnings("FieldCanBeLocal")
   private final int PERIOD = 10000; // 10 seconds period
 
   HeartbeatMonitor(UsersMonitor usersMonitor) {

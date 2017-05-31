@@ -4,7 +4,7 @@ import java.rmi.Remote;
 import java.rmi.RemoteException;
 
 /**
- * @æuthor Daniele Paolini
+ * @author Daniele Paolini
  * Text Twist project
  * Date 16/05/17.
  * Interface for the notification service exported by the client.
@@ -25,6 +25,7 @@ public interface InvitationNotifierInterface extends Remote {
    * @return a test string.
    * @throws RemoteException (See java.rmi.RemoteException)
    */
+  @SuppressWarnings("UnusedReturnValue")
   String heartbeat() throws RemoteException;
 
 }

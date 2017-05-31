@@ -16,6 +16,7 @@ import java.sql.Statement;
  * This task submit a query to the database in order to retrieve the actual ranking.
  */
 
+@SuppressWarnings({"SqlDialectInspection", "SqlNoDataSourceInspection"})
 public class RankingWorker implements Runnable {
 
   private Connection database;

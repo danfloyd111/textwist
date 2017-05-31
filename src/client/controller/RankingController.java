@@ -95,14 +95,14 @@ public class RankingController {
         });
       } catch (IOException e) {
         System.err.println(e.getMessage());
-        System.err.println("[DEBUG] Error in getRanking - RankingController");
-        Platform.runLater(() -> {mainApp.showWaitingView("Connection problems!",true);});
+        System.err.println("[ERROR] Error in getRanking - RankingController");
+        Platform.runLater(() -> mainApp.showWaitingView("Connection problems!",true));
       } finally {
         if (socket != null) try {
           socket.close();
         } catch (IOException e) {
           System.err.println(e.getMessage());
-          System.err.println("[DEBUG] Error in getRanking - RankingController: can't close the socket.");
+          System.err.println("[ERROR] Error in getRanking - RankingController: can't close the socket.");
         }
       }
     });

@@ -47,7 +47,6 @@ public class MatchWorker implements Runnable {
       String tokens[] = line.split(":");
       operation = Integer.parseInt(tokens[0]);
       if (operation == 1) {
-        System.out.println("[DEBUG] matchworker op 1");
         // op 1: invitation
         String owner = tokens[1];
         String players[] = new String[tokens.length - 2];
@@ -73,13 +72,11 @@ public class MatchWorker implements Runnable {
         if (!keepGoing || !ownerNotification) {
           // some user crashed during notification procedure
           writer.write("NO:Unfortunately some users crashed during the notification procedure.");
-          // TODO : kill the match
         } else // all gone fine
           writer.write("OK");
         writer.newLine();
         writer.flush();
       } else {
-        System.out.println("[DEBUG] matchWorker op 2: " + line);
         // op 2: response to an invitation
         UUID id = UUID.fromString(tokens[1]);
         String answer = tokens[2];
@@ -87,13 +84,10 @@ public class MatchWorker implements Runnable {
           boolean found = false;
           for (Match match : matches) {
             if (match.getId().equals(id)) {
-              System.out.println("[DEBUG] found match, answer: " + answer);
               found = true;
               if (answer.equals("OK")) {
                 match.confirm(userSocket);
-                System.out.println("[DEBUG] answer was ok");
               } else {
-                System.out.println("[DEBUG] answer was no");
                 match.kill();
                 operation = 1; // little workaround to close this socket in case of refuse
               }
@@ -105,7 +99,6 @@ public class MatchWorker implements Runnable {
             wr.newLine();
             wr.flush();
             operation = 1; // little workaround to close this socket in case of expiration
-            System.out.println("[DEBUG] match not found");
           }
         }
       }
@@ -115,14 +108,12 @@ public class MatchWorker implements Runnable {
     } catch (IOException e) {
       System.err.println(e.getMessage());
       System.err.println("[ERROR] MatchWorker has lost the connection with the match owner!");
-      // TODO : kill the match
     } finally {
       try {
         if (operation == 1) userSocket.close(); // if operation is 2, the socket will be closed by the Match
       } catch (IOException e) {
         System.err.println(e.getMessage());
         System.err.println("[ERROR] MatchWorker got internal problems!");
-        // TODO : kill the match
       }
     }
   }

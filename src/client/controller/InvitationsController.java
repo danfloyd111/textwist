@@ -48,7 +48,6 @@ public class InvitationsController {
       infoLabel.setTextFill(Color.RED);
       infoLabel.setText(":( Ow! It seems that your selection is empty, choose an invitation!");
     } else {
-      System.out.println("[DEBUG] in principio - there are " + mainApp.getInvitations().size() + " invitations.");
       mainApp.showWaitingView("Waiting the other players...", false);
       Thread matchListener = new Thread(() -> {
         String message = "2:" + selected.get(0).getMatchId() + ":OK";
@@ -57,12 +56,10 @@ public class InvitationsController {
           socket = new Socket(mainApp.SERVER_ADDRESS, mainApp.MATCH_PORT);
           BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
           BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
-          System.out.println("[DEBUG] Sending message: " + message);
           writer.write(message);
           writer.newLine();
           writer.flush();
           String response = reader.readLine();
-          System.out.println("[DEBUG] Match response: " + response);
           String[] tokens = response.split(":");
           if (tokens[0].equals("OK"))
             Platform.runLater(() -> mainApp.showGameView(tokens[1],Integer.parseInt(tokens[2]), tokens[3]));
@@ -131,7 +128,6 @@ public class InvitationsController {
           Socket socket = new Socket(mainApp.SERVER_ADDRESS, mainApp.MATCH_PORT);
           socket.setSoTimeout(1000);
           BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
-          System.out.println("[DEBUG] Refusing match");
           writer.write("2:" + selected.get(0).getMatchId() + ":NO");
           writer.newLine();
           writer.flush();

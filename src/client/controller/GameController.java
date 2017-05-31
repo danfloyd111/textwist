@@ -58,7 +58,6 @@ public class GameController {
         DatagramPacket packet = new DatagramPacket(buffer,buffer.length);
         Thread.sleep(60000 * 2); // match time is 2 min
         Platform.runLater(() -> mainApp.showWaitingView("Waiting for the results...", false));
-        System.out.println("[DEBUG] pronto a ricevere");
         mcSocket.receive(packet);
         String results = new String(packet.getData());
         Platform.runLater(() -> mainApp.showResultsView(results.trim()));
@@ -85,7 +84,6 @@ public class GameController {
         sender.send(packet);
       } catch (IOException e) {
         System.err.println(e.getMessage());
-        System.err.println("[DEBUG] Can't send the word to the server!");
       }
       wordField.clear();
     }

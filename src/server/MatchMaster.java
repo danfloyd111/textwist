@@ -52,7 +52,6 @@ public class MatchMaster implements Runnable {
         workersPool.submit(new MatchWorker(userSocket, usersMonitor, matches, dictionary, database));
       } catch (IOException e) {
         // do nothing, server going down
-        // TODO : kill all the remaining matches
       }
     }
 

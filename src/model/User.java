@@ -9,6 +9,7 @@ import client.controller.InvitationNotifierInterface;
  * This represent an user.
  */
 
+@SuppressWarnings("unused")
 public class User {
 
   private String username, password;

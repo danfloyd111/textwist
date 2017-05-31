@@ -3,7 +3,6 @@ package client.controller;
 import model.Invitation;
 
 import java.rmi.RemoteException;
-import java.util.ArrayList;
 import java.util.List;
 
 /**

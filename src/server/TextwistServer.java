@@ -24,8 +24,6 @@ import java.util.stream.Stream;
 
 public class TextwistServer {
 
-  private static volatile boolean keepRunning = true; // this is the volatile variable that keeps the server up.
-
   private static final int REGISTRY_PORT = 8888;
   private static final int SERVICE_PORT = 9999;
   private static final String SERVER_NAME = "TEXTWISTSERVER";
@@ -40,6 +38,7 @@ public class TextwistServer {
 
   private static HeartbeatMonitor heartbeatMonitor;
 
+  @SuppressWarnings("FieldCanBeLocal")
   private static ArrayList<String> dictionary;
 
   private static RankingMaster rankingMaster;
@@ -58,7 +57,6 @@ public class TextwistServer {
 
     final Thread mainThread = Thread.currentThread();
     Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-      keepRunning = false;
       matchMaster.shutdown();
       heartbeatMonitor.shutdown();
       rankingMaster.shutdown();
@@ -116,13 +114,6 @@ public class TextwistServer {
     Thread rankingMasterThread = new Thread(rankingMaster);
     rankingMasterThread.start();
     System.out.println("[LOG] Ranking master up and running.");
-
-    // Server's life cycle
-    /*
-    while (keepRunning) {
-
-    }
-    */
 
   }
 

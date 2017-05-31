@@ -7,7 +7,7 @@ import javafx.scene.control.TextField;
 import javafx.scene.paint.Color;
 
 /**
- * @æuthor Daniele Paolini
+ * @author Daniele Paolini
  * Text Twist project.
  * Date 16/05/17.
  * Controller for the Sign up view.
@@ -45,7 +45,6 @@ public class SignupController {
       infoLabel.setTextFill(Color.RED);
       infoLabel.setText("Password fields does not correspond!");
     } else {
-      // TODO : check if username is already picked up
       boolean status = mainApp.signUp(usernameField.getText(), passwordField.getText());
       if (status) {
         infoLabel.setTextFill(Color.GREEN);

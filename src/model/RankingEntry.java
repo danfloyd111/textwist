@@ -10,6 +10,7 @@ import javafx.beans.property.SimpleStringProperty;
  * Helper class for the ranking management.
  */
 
+@SuppressWarnings("unused")
 public class RankingEntry {
 
   private SimpleStringProperty username;

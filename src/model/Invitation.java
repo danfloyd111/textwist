@@ -7,6 +7,7 @@ package model;
  * This data model represent an invitation as seen by a generic user.
  */
 
+@SuppressWarnings("unused")
 public class Invitation {
 
   private String owner;

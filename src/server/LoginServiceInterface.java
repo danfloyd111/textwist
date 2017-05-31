@@ -53,6 +53,7 @@ public interface LoginServiceInterface extends Remote {
    * @return a test string.
    * @throws RemoteException (see java.rmi.RemoteException)
    */
+  @SuppressWarnings("UnusedReturnValue")
   String heartbeat() throws RemoteException;
 
 }

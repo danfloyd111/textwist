@@ -18,6 +18,7 @@ import java.util.*;
  * This runnable task represent a match.
  */
 
+@SuppressWarnings({"SqlDialectInspection", "SqlNoDataSourceInspection"})
 public class Match implements Runnable {
 
   private Map<String, Integer> players;
@@ -64,7 +65,6 @@ public class Match implements Runnable {
         try {
           monitor.wait();
         } catch (InterruptedException e) {
-          System.out.println("[DEBUG] Match " + id.toString() + " invalidated.");
           matches.remove(this);
           if (timeout.isAlive()) timeout.interrupt();
           sockets.forEach(socket -> {
@@ -119,7 +119,6 @@ public class Match implements Runnable {
                 words.add(entry);
             }
             players.put(tokens[0], players.get(tokens[0]) + points);
-            System.out.println("[DEBUG] received -> " + tokens[1].trim() + " from " + tokens[0] + " / points: " + points);
           } catch (InterruptedIOException e) {
             // shutting down
           } catch (IOException e) {

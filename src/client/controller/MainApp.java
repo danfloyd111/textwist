@@ -104,7 +104,7 @@ public class MainApp extends Application {
       //System.exit(1);
     } catch (NotBoundException e) {
       System.err.println(e.getMessage());
-      System.err.println("[DEBUG] Error in initRemoteServices - Can't find the remote service.");
+      System.err.println("[ERROR] Error in initRemoteServices - Can't find the remote service.");
       System.exit(1);
     }
   }
@@ -129,7 +129,7 @@ public class MainApp extends Application {
       controller.setMainApp(this);
     } catch (IOException e) {
       System.err.println(e.getMessage());
-      System.err.println("[DEBUG] Error in initRootView.");
+      System.err.println("[ERROR] Error in initRootView.");
       System.exit(1);
     }
   }
@@ -217,13 +217,10 @@ public class MainApp extends Application {
       socket.setSoTimeout(1500);
       BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
       BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
-      System.out.println("[DEBUG] Sending list " + String.valueOf(message));
       writer.write(String.valueOf(message));
       writer.newLine();
       writer.flush();
-      System.out.println("[DEBUG] List sent.");
       String response = reader.readLine();
-      System.out.println("[DEBUG] Response received.");
       String[] tokens = response.split(":");
       String status = tokens[0];
       if (status.equals("OK")) {

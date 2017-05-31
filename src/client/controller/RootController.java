@@ -9,6 +9,7 @@ package client.controller;
 
 public class RootController {
 
+  @SuppressWarnings("FieldCanBeLocal")
   private MainApp mainApp;
 
   void setMainApp(MainApp mainApp) {

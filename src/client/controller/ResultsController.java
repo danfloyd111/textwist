@@ -23,8 +23,6 @@ public class ResultsController {
 
   private MainApp mainApp;
   private String username;
-  private ObservableList<RankingEntry> entries;
-  private ArrayList<RankingEntry> entriesList;
 
   @FXML
   private TableView<RankingEntry> rankingTable;
@@ -39,16 +37,16 @@ public class ResultsController {
   public void setMainApp(MainApp mainApp, String username, String results) {
     this.mainApp = mainApp;
     this.username = username;
-    entriesList = new ArrayList<>();
+    ArrayList<RankingEntry> entriesList = new ArrayList<>();
     String tokens[] = results.split(":");
     for (int i=0; i<tokens.length; i=i+2) {
       String uname = tokens[i];
       int pts = Integer.parseInt(tokens[i+1]);
       entriesList.add(new RankingEntry(uname, 0, pts)); // number of matches played not required in partial results
     }
-    Collections.sort(entriesList, Comparator.comparingInt(RankingEntry::getPoints));
+    entriesList.sort(Comparator.comparingInt(RankingEntry::getPoints));
     Collections.reverse(entriesList);
-    entries = FXCollections.observableArrayList(entriesList);
+    ObservableList<RankingEntry> entries = FXCollections.observableArrayList(entriesList);
     usernameCol.setCellValueFactory(new PropertyValueFactory<>("username"));
     pointsCol.setCellValueFactory(new PropertyValueFactory<>("points"));
     rankingTable.setItems(entries);
