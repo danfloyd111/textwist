@@ -9,6 +9,8 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import model.RankingEntry;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 
 /**
  * @author Daniele Paolini
@@ -44,7 +46,8 @@ public class ResultsController {
       int pts = Integer.parseInt(tokens[i+1]);
       entriesList.add(new RankingEntry(uname, 0, pts)); // number of matches played not required in partial results
     }
-    // TODO: sort entriesList
+    Collections.sort(entriesList, Comparator.comparingInt(RankingEntry::getPoints));
+    Collections.reverse(entriesList);
     entries = FXCollections.observableArrayList(entriesList);
     usernameCol.setCellValueFactory(new PropertyValueFactory<>("username"));
     pointsCol.setCellValueFactory(new PropertyValueFactory<>("points"));
